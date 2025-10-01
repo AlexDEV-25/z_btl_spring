@@ -22,7 +22,8 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "src/app/shared/modern-theme.css"
             ]
           },
           "configurations": {
@@ -51,6 +52,9 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "my-app:build:production"
@@ -81,5 +85,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }

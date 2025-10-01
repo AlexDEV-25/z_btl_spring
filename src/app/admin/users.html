@@ -1,0 +1,150 @@
+<app-layout [menuItems]="menuItems" [userName]="userName" [userRole]="'Quản trị viên'">
+  <div class="main-card">
+    <div class="page-header">
+      <h3>👤 Quản lý người dùng</h3>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn btn-secondary" (click)="reset()">
+        🔄 Reset Form
+      </button>
+      <span class="spacer"></span>
+      <div class="search-container">
+        <input class="search-input" [(ngModel)]="searchText" placeholder="🔍 Search users..." />
+        <button class="btn btn-success" (click)="applyFilter()">
+          🔍 Find
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h4>➕ Thêm/Sửa người dùng</h4>
+      </div>
+      <div class="card-body">
+        <form class="form-container" (ngSubmit)="save()">
+          <div class="form-grid grid-3">
+            <div class="form-group">
+              <label class="form-label">👤 Tên đăng nhập</label>
+              <input class="form-input" [(ngModel)]="form.username" name="username"
+                placeholder="Nhập tên đăng nhập..." required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">🔒 Mật khẩu</label>
+              <input class="form-input" [(ngModel)]="form.password" name="password" type="password"
+                placeholder="Nhập mật khẩu..." required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">📝 Họ và tên</label>
+              <input class="form-input" [(ngModel)]="form.fullName" name="fullName"
+                placeholder="Nhập họ và tên đầy đủ..." required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">📧 Email</label>
+              <input class="form-input" [(ngModel)]="form.email" name="email" type="email"
+                placeholder="Nhập địa chỉ email..." required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">👥 Vai trò</label>
+              <select class="form-input" [(ngModel)]="form.roleId" name="roleId" required>
+                <option value="">-- Chọn vai trò --</option>
+                <option *ngFor="let role of roles" [value]="role.id">
+                  {{ role.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">🏛️ Khoa</label>
+              <select class="form-input" [(ngModel)]="form.departmentId" name="departmentId">
+                <option [ngValue]="null">-- Không chọn --</option>
+                <option *ngFor="let dept of departments" [value]="dept.id">
+                  {{ dept.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">⚧️ Giới tính</label>
+              <select class="form-input" [(ngModel)]="form.gender" name="gender" required>
+                <option *ngFor="let g of genders" [ngValue]="g.key">{{ g.label }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">📅 Ngày sinh</label>
+              <input class="form-input" [(ngModel)]="form.dateOfBirth" name="dateOfBirth" type="date" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">🏠 Địa chỉ</label>
+              <input class="form-input" [(ngModel)]="form.address" name="address"
+                placeholder="Nhập địa chỉ..." />
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="reset()">
+              🔄 Reset
+            </button>
+            <button type="submit" class="btn btn-primary">
+              {{ editingId ? '💾 Cập nhật' : '➕ Thêm mới' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h4>📋 Danh sách người dùng</h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>👤 Tên đăng nhập</th>
+                <th>📝 Họ tên</th>
+                <th>📧 Email</th>
+                <th>🎂 Ngày sinh</th>
+                <th>⚧ Giới tính</th>
+                <th>🏠 Địa chỉ</th>
+                <th>🎭 Vai trò</th>
+                <th>⚙️ Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let u of filteredUsers; let i = index" (click)="selectForEdit(u)">
+                <td><strong>{{ i + 1 }}</strong></td>
+                <td>{{ u.username }}</td>
+                <td>{{ u.fullName }}</td>
+                <td>{{ u.email }}</td>
+                <td>{{ u.dateOfBirth || '—' }}</td>
+                <td>{{ u.gender || 'OTHER' }}</td>
+                <td>{{ u.address || '—' }}</td>
+                <td>{{ getRoleName(u.roleId) }}</td>
+                <td>
+                  <div class="action-buttons">
+                    <button type="button" class="btn btn-sm btn-success"
+                      (click)="$event.stopPropagation(); selectForEdit(u)">
+                      ✏️ Edit
+                    </button>
+                    <button type="button" class="btn btn-sm btn-danger"
+                      (click)="$event.stopPropagation(); remove(u.id)">
+                      🗑️ Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="users.length === 0">
+                <td colspan="9" class="no-data">
+                  💭 No users found
+                </td>
+              </tr>
+            </tbody>

@@ -1,0 +1,169 @@
+<app-layout [menuItems]="menuItems" [userName]="userName" [userRole]="'Sinh viên'">
+  <div class="main-card">
+    <div class="page-header">
+      <h3>📊 Bảng điểm của tôi</h3>
+      <div class="header-controls">
+        <select class="semester-select" [(ngModel)]="selectedSemester" (change)="onSemesterChange()">
+          <option *ngFor="let semester of availableSemesters" [value]="semester.semester">
+            {{ semester.displayName }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div *ngIf="error" class="error-message">⚠️ {{ error }}</div>
+      <div *ngIf="loading" class="loading-message">⏳ Đang tải bảng điểm...</div>
+      <!-- Student Grade Summary -->
+      <div *ngIf="grades && !loading" class="grade-summary">
+        <div class="summary-card gpa-card">
+          <div class="summary-icon">🎯</div>
+          <div class="summary-content">
+            <div class="summary-label">Điểm trung bình tích lũy (GPA)</div>
+            <div class="summary-value gpa-value">
+              {{ grades.gpa | number:'1.2-2' }}/4.0
+            </div>
+            <div class="gpa-classification">{{ getGPAClassification(grades.gpa) }}</div>
+          </div>
+        </div>
+
+        <div class="summary-card credits-card">
+          <div class="summary-icon">📚</div>
+          <div class="summary-content">
+            <div class="summary-label">Tín chỉ tích lũy</div>
+            <div class="summary-value">{{ grades.completedCredits }}/{{ grades.totalCredits }}</div>
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="getCompletionPercentage()"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-card student-card">
+          <div class="summary-icon">👨‍🎓</div>
+          <div class="summary-content">
+            <div class="summary-label">Sinh viên</div>
+            <div class="summary-value student-name">{{ grades.studentName }}</div>
+            <div class="student-code">{{ grades.studentCode }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!loading && (!grades || grades.gradeItems.length === 0)" class="no-data">
+        <div class="no-data-icon">📝</div>
+        <div class="no-data-text">Chưa có điểm số nào được ghi nhận</div>
+        <button class="btn btn-primary" (click)="goToSchedule()">
+          📅 Xem thời khóa biểu
+        </button>
+      </div>
+
+      <!-- Filter and Search -->
+      <div *ngIf="grades && grades.gradeItems.length > 0" class="filter-section">
+        <div class="filter-row">
+          <div class="search-box">
+            <input type="text" class="search-input" placeholder="🔍 Tìm kiếm môn học..." 
+                   [(ngModel)]="searchTerm" (input)="filterGrades()">
+          </div>
+          <div class="filter-controls">
+            <select class="filter-select" [(ngModel)]="statusFilter" (change)="filterGrades()">
+              <option value="">Tất cả trạng thái</option>
+              <option value="Đã hoàn thành">Đã hoàn thành</option>
+              <option value="Đang học">Đang học</option>
+              <option value="Chưa học">Chưa học</option>
+            </select>
+            <select class="filter-select" [(ngModel)]="semesterFilter" (change)="filterGrades()">
+              <option value="">Tất cả học kỳ</option>
+              <option *ngFor="let semester of availableSemesters" [value]="semester.semester">
+                {{ semester.displayName }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grades Table -->
+      <div *ngIf="filteredGrades && filteredGrades.length > 0" class="grades-table-container">
+        <table class="grades-table">
+          <thead>
+            <tr>
+              <th>Mã môn</th>
+              <th>Tên môn học</th>
+              <th>Tín chỉ</th>
+              <th>Điểm TP1</th>
+              <th>Điểm TP2</th>
+              <th>Điểm CK</th>
+              <th>Điểm chữ</th>
+              <th>Trạng thái</th>
+              <th>Học kỳ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of filteredGrades" class="grade-row" 
+                [class.completed]="item.status === 'Đã hoàn thành'"
+                [class.in-progress]="item.status === 'Đang học'"
+                [class.not-started]="item.status === 'Chưa học'">
+              <td class="course-code">{{ item.courseCode }}</td>
+              <td class="course-name">{{ item.courseName }}</td>
+              <td class="credit">
+                <span class="credit-badge">{{ item.credit }}</span>
+              </td>
+              <td class="score" [class.has-score]="item.componentScore1 !== null">
+                {{ item.componentScore1 !== null ? (item.componentScore1 | number:'1.1-1') : '-' }}
+              </td>
+              <td class="score" [class.has-score]="item.componentScore2 !== null">
+                {{ item.componentScore2 !== null ? (item.componentScore2 | number:'1.1-1') : '-' }}
+              </td>
+              <td class="score" [class.has-score]="item.finalExamScore !== null">
+                {{ item.finalExamScore !== null ? (item.finalExamScore | number:'1.1-1') : '-' }}
+              </td>
+              <td class="grade" [class]="getGradeClass(item.grade)">
+                <span class="grade-badge" *ngIf="item.grade">{{ item.grade }}</span>
+                <span class="no-grade" *ngIf="!item.grade">Chưa có</span>
+              </td>
+              <td class="status">
+                <span class="status-badge" [class]="getStatusClass(item.status)">
+                  {{ item.status }}
+                </span>
+              </td>
+              <td class="semester">{{ item.semester || 'N/A' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Statistics -->
+      <div *ngIf="grades && grades.gradeItems.length > 0" class="mb-6">
+        <h4 class="text-2xl font-bold mb-6">📈 Thống kê chi tiết</h4>
+        <div class="stats-grid">
+          <div class="stat-card stat-card-secondary">
+            <div class="stat-icon">📚</div>
+            <div class="stat-label">Tổng số môn</div>
+            <div class="stat-value">{{ grades.gradeItems.length }}</div>
+          </div>
+          <div class="stat-card stat-card-success">
+            <div class="stat-icon">✅</div>
+            <div class="stat-label">Đã hoàn thành</div>
+            <div class="stat-value">{{ getCompletedCount() }}</div>
+          </div>
+          <div class="stat-card stat-card-warning">
+            <div class="stat-icon">📖</div>
+            <div class="stat-label">Đang học</div>
+            <div class="stat-value">{{ getInProgressCount() }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div *ngIf="grades && grades.gradeItems.length > 0" class="quick-actions">
+        <button class="btn btn-secondary" (click)="goToSchedule()">
+          📅 Xem thời khóa biểu
+        </button>
+        <button class="btn btn-primary" (click)="goToRegistration()">
+          ➕ Đăng ký môn học
+        </button>
+        <button class="btn btn-info" (click)="exportGrades()">
+          📄 Xuất bảng điểm
+        </button>
+      </div>
+    </div>
+  </div>
+</app-layout>

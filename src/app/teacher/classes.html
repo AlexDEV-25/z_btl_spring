@@ -1,0 +1,54 @@
+<app-layout [menuItems]="menuItems" [userName]="userName" [userRole]="'Giảng viên'">
+  <div class="main-card">
+    <div class="page-header">
+      <h3>📅 Thời khóa biểu giảng dạy</h3>
+      <div class="header-controls">
+        <select class="semester-select" [(ngModel)]="selectedSemester" (change)="onSemesterChange()">
+          <option *ngFor="let semester of availableSemesters" [value]="semester.semester">
+            {{ semester.displayName }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div *ngIf="error" class="error-message">⚠️ {{ error }}</div>
+      <div *ngIf="loading" class="loading-message">⏳ Đang tải dữ liệu...</div>
+      <div *ngIf="!loading && classes.length === 0" class="no-data">
+        Chưa có lớp học nào được phân công
+      </div>
+
+      <div *ngIf="!loading && classes.length > 0" class="timetable">
+        <!-- Day headers -->
+        <div class="corner-cell"></div>
+        <div class="day-header" *ngFor="let d of days" [style.gridColumn]="(d.index + 1)" [style.gridRow]="1">
+          {{ d.label }}
+        </div>
+
+        <!-- Period labels and background slots -->
+        <ng-container *ngFor="let p of periods; let r = index">
+          <!-- Left time/period column -->
+          <div class="period-cell" [style.gridRow]="(r + 2)" [style.gridColumn]="1">
+            <div class="period-num">Tiết {{ p }}</div>
+            <div class="period-session" [class.morning]="p <= 5" [class.afternoon]="p >= 6">
+              {{ p <= 5 ? 'Sáng' : 'Chiều' }} </div>
+            </div>
+
+            <!-- Background slots for each day -->
+            <div class="slot-cell" *ngFor="let d of days" [style.gridRow]="(r + 2)" [style.gridColumn]="(d.index + 1)">
+            </div>
+        </ng-container>
+
+        <!-- Event blocks -->
+        <div class="event" *ngFor="let e of events" [style.gridColumn]="(e.dayIndex + 1)"
+          [style.gridRow]="(e.start + 1) + ' / ' + (e.end + 1)" [style.borderLeftColor]="e.color">
+          <div class="event-title">{{ e.title }}</div>
+          <div class="event-subtitle" *ngIf="e.subtitle">Lớp: {{ e.subtitle }}</div>
+          <div class="event-meta">
+            <span>Tiết {{ e.start }}-{{ e.end - 1 }}</span>
+            <span *ngIf="e.room">• Phòng: {{ e.room }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

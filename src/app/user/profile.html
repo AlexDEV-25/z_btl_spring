@@ -1,0 +1,363 @@
+<app-layout [menuItems]="menuItems" [userName]="userName" [userRole]="'Sinh viên'">
+  <div class="main-card">
+    <div class="page-header">
+      <h3>👤 Thông tin cá nhân</h3>
+    </div>
+
+    <div class="card-body">
+      <div *ngIf="error" class="error-message">⚠️ {{ error }}</div>
+      <div *ngIf="loading" class="loading-message">⏳ Đang tải dữ liệu...</div>
+      
+      <!-- Profile Information -->
+      <div *ngIf="!loading && profile" class="profile-container">
+        <div class="profile-card">
+          <div class="profile-header">
+            <div class="profile-avatar">
+              <div class="avatar-circle">
+                <span class="avatar-text">{{ profile.fullName.charAt(0) || 'S' }}</span>
+              </div>
+            </div>
+            <div class="profile-info">
+              <h2>{{ profile.fullName }}</h2>
+              <p class="profile-role">Sinh viên</p>
+              <p class="profile-department">{{ profile.major }}</p>
+            </div>
+          </div>
+
+          <div class="profile-details">
+            <div class="detail-row">
+              <div class="detail-item">
+                <span class="detail-label">🆔 Mã sinh viên:</span>
+                <span class="detail-value">{{ profile.studentCode }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">📧 Email:</span>
+                <span class="detail-value">{{ profile.email }}</span>
+              </div>
+            </div>
+
+            <div class="detail-row">
+              <div class="detail-item">
+                <span class="detail-label">📱 Số điện thoại:</span>
+                <span class="detail-value">{{ profile.phone || 'Chưa cập nhật' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">🏫 Lớp:</span>
+                <span class="detail-value">{{ profile.className }}</span>
+              </div>
+            </div>
+
+            <div class="detail-row">
+              <div class="detail-item">
+                <span class="detail-label">🎓 Ngành học:</span>
+                <span class="detail-value">{{ profile.major }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">📅 Niên khóa:</span>
+                <span class="detail-value">{{ profile.academicYear }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Password Change Section -->
+        <div class="password-section">
+          <div class="section-header">
+            <h4>🔐 Bảo mật tài khoản</h4>
+            <button class="btn btn-outline" (click)="togglePasswordForm()">
+              {{ showPasswordForm ? 'Hủy' : 'Đổi mật khẩu' }}
+            </button>
+          </div>
+
+          <!-- Success/Error Messages -->
+          <div *ngIf="passwordMessage" class="success-message">
+            ✅ {{ passwordMessage }}
+          </div>
+          <div *ngIf="passwordError" class="error-message">
+            ⚠️ {{ passwordError }}
+          </div>
+
+          <!-- Password Change Form -->
+          <div *ngIf="showPasswordForm" class="password-form">
+            <div class="form-group">
+              <label for="newPassword">Mật khẩu mới</label>
+              <input 
+                type="password" 
+                id="newPassword"
+                class="form-control"
+                [(ngModel)]="passwordRequest.newPassword"
+                placeholder="Nhập mật khẩu mới (ít nhất 6 ký tự)"
+                [disabled]="passwordLoading">
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword">Xác nhận mật khẩu mới</label>
+              <input 
+                type="password" 
+                id="confirmPassword"
+                class="form-control"
+                [(ngModel)]="passwordRequest.confirmPassword"
+                placeholder="Nhập lại mật khẩu mới"
+                [disabled]="passwordLoading">
+            </div>
+
+            <div class="form-actions">
+              <button 
+                class="btn btn-primary" 
+                (click)="changePassword()"
+                [disabled]="passwordLoading">
+                <span *ngIf="passwordLoading">⏳ Đang xử lý...</span>
+                <span *ngIf="!passwordLoading">🔄 Cập nhật mật khẩu</span>
+              </button>
+              <button 
+                class="btn btn-secondary" 
+                (click)="togglePasswordForm()"
+                [disabled]="passwordLoading">
+                Hủy
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-layout>
+
+<style>
+.profile-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.profile-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.profile-avatar {
+  margin-right: 1.5rem;
+}
+
+.avatar-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.profile-info h2 {
+  margin: 0 0 0.5rem 0;
+  color: #1f2937;
+  font-size: 1.8rem;
+}
+
+.profile-role {
+  color: #3b82f6;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+}
+
+.profile-department {
+  color: #6b7280;
+  margin: 0;
+}
+
+.profile-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.detail-value {
+  color: #1f2937;
+  font-size: 1rem;
+  padding: 0.5rem 0;
+}
+
+.password-section {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.section-header h4 {
+  margin: 0;
+  color: #1f2937;
+}
+
+.password-form {
+  max-width: 400px;
+  margin-top: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-control:disabled {
+  background-color: #f9fafb;
+  cursor: not-allowed;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  font-size: 0.9rem;
+}
+
+.btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: #6b7280;
+  color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #5b6470;
+}
+
+.btn-outline {
+  background: transparent;
+  color: #3b82f6;
+  border: 1px solid #3b82f6;
+}
+
+.btn-outline:hover {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.success-message {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #10b981;
+}
+
+.error-message {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #ef4444;
+}
+
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .profile-avatar {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+
+  .detail-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .section-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+}
+</style>

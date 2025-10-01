@@ -1,0 +1,113 @@
+<app-layout [menuItems]="menuItems" [userName]="userName" [userRole]="'Quản trị viên'">
+  <div class="main-card">
+    <div class="page-header">
+      <h3>👥 Quản lý sinh viên</h3>
+    </div>
+
+    <div class="toolbar">
+        <button class="btn btn-secondary" (click)="reset()">
+            🔄 Reset Form
+        </button>
+        <span class="spacer"></span>
+        <div class="search-container">
+            <input class="search-input" [(ngModel)]="searchText" placeholder="🔍 Search students..." />
+            <button class="btn btn-success" (click)="loadStudents()">
+                🔍 Find
+            </button>
+        </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h4>➕ Thêm/Sửa sinh viên</h4>
+      </div>
+      <div class="card-body">
+        <form class="form-container" (ngSubmit)="save()">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">👤 Người dùng</label>
+              <select class="form-input" [(ngModel)]="form.userId" name="userId" required>
+                <option value="">-- Chọn người dùng --</option>
+                <option *ngFor="let user of availableUsers" [value]="user.id">
+                  {{ user.username }} - {{ user.fullName }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">🏷️ Mã sinh viên</label>
+              <input class="form-input" [(ngModel)]="form.studentCode" name="studentCode"
+                placeholder="Nhập mã sinh viên (ví dụ: SV001)..." required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">🏢 Lớp học</label>
+              <select class="form-input" [(ngModel)]="form.classId" name="classId" required>
+                <option value="">-- Chọn lớp học --</option>
+                <option *ngFor="let cls of classes" [value]="cls.id">
+                  {{ cls.name }} ({{ cls.year }})
+                </option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="reset()">
+              🔄 Reset
+            </button>
+            <button type="submit" class="btn btn-primary">
+              {{ editingId ? '💾 Cập nhật' : '➕ Thêm mới' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h4>📋 Danh sách sinh viên</h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>👤 Người dùng</th>
+                <th>🏷️ Mã sinh viên</th>
+                <th>🏢 Lớp học</th>
+                <th>⚙️ Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let s of filteredStudents; let i = index" (click)="selectForEdit(s)">
+                    <td><strong>{{ i + 1 }}</strong></td>
+                    <td>{{ getUserName(s.userId) }}</td>
+                    <td><strong>{{ s.studentCode }}</strong></td>
+                    <td>{{ getClassName(s.classId) }}</td>
+
+                    <td>
+                        <div class="action-buttons">
+                            <button type="button" class="btn btn-sm btn-success"
+                                (click)="$event.stopPropagation(); selectForEdit(s)">
+                                ✏️ Edit
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger"
+                                (click)="$event.stopPropagation(); remove(s.id)">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr *ngIf="students.length === 0">
+                    <td colspan="7" class="no-data">
+                        📭 No students found
+                    </td>
+                </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-layout>

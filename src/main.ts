@@ -1,6 +1,16 @@
+import { provideZoneChangeDetection } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { appConfig } from './app/app.config';
-import { App } from './app/app';
+import { AppComponent } from './app/app';
+import { provideRouter } from '@angular/router';
+import { routes } from './app/app.routes';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { authInterceptor } from './app/auth.interceptor';
+import 'zone.js'; // Đảm bảo dòng này có mặt
 
-bootstrapApplication(App, appConfig)
-  .catch((err) => console.error(err));
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(routes),
+    provideHttpClient(withInterceptors([authInterceptor]))
+  ]
+}).catch(err => console.error(err));

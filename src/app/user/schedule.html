@@ -1,0 +1,93 @@
+<app-layout [menuItems]="menuItems" [userName]="userName" [userRole]="'Sinh viên'">
+  <div class="main-card">
+    <div class="page-header">
+      <h3>📅 Thời khóa biểu của tôi</h3>
+      <div class="header-controls">
+        <select class="semester-select" [(ngModel)]="selectedSemester" (change)="onSemesterChange()">
+          <option *ngFor="let semester of availableSemesters" [value]="semester.semester">
+            {{ semester.displayName }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div *ngIf="loading" class="loading-message">⏳ Đang tải thời khóa biểu...</div>
+
+      <!-- Student Info Summary -->
+      <div *ngIf="schedule && !loading" class="info-card">
+        <div class="info-row">
+          <span class="info-label">👨‍🎓 Sinh viên:</span>
+          <span class="info-value">{{ schedule.studentName }} ({{ schedule.studentCode }})</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">📚 Học kỳ:</span>
+          <span class="info-value">{{ selectedSemester }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">🎯 Tổng tín chỉ:</span>
+          <span class="info-value">{{ schedule.totalCredits }} <span class="credit-badge">TC</span></span>
+        </div>
+      </div>
+
+      <div *ngIf="!loading && (!schedule || schedule.scheduleItems.length === 0)" class="no-data">
+        <div class="no-data-icon">📚</div>
+        <button class="btn btn-primary" (click)="goToRegistration()">
+          ➕ Đăng ký môn học
+        </button>
+      </div>
+
+      <div *ngIf="!loading && schedule && schedule.scheduleItems.length > 0" class="timetable">
+        <!-- Day headers -->
+        <div class="corner-cell">
+          Tiết / Thứ
+        </div>
+        <div class="day-header" *ngFor="let d of days" [style.gridColumn]="(d.index + 1)" [style.gridRow]="1">
+          <div class="day-name">{{ d.label }}</div>
+          <div class="day-date">{{ d.date }}</div>
+        </div>
+
+        <!-- Period labels and background slots -->
+        <ng-container *ngFor="let p of periods; let r = index">
+          <!-- Left time/period column -->
+          <div class="period-cell" [style.gridRow]="(r + 2)" [style.gridColumn]="1">
+            <div class="period-num">Tiết {{ p }}</div>
+            <div class="period-time">{{ getPeriodTime(p) }}</div>
+            <div class="period-session" [class.morning]="p <= 5" [class.afternoon]="p >= 6">
+              {{ p <= 5 ? 'Sáng' : 'Chiều' }} </div>
+            </div>
+
+            <!-- Background slots for each day -->
+            <div class="slot-cell" *ngFor="let d of days" [style.gridRow]="(r + 2)" [style.gridColumn]="(d.index + 1)">
+            </div>
+        </ng-container>
+
+        <!-- Event blocks -->
+        <div class="event" *ngFor="let e of events" [style.gridColumn]="(e.dayIndex + 1)"
+          [style.gridRow]="(e.start + 1) + ' / ' + (e.end + 1)" [style.borderLeftColor]="e.color"
+          [title]="getEventTooltip(e)">
+          <div class="event-title">{{ e.title }}</div>
+          <div class="event-lecturer" *ngIf="e.lecturer">👨‍🏫 {{ e.lecturer }}</div>
+          <div class="event-room" *ngIf="e.room">🏢 {{ e.room }}</div>
+          <div class="event-meta">
+            <span class="event-time">⏰ {{ getPeriodTime(e.start) }} - {{ getPeriodTime(e.end - 1, true) }}</span>
+            <span class="event-credit">📚 {{ e.credit }} TC</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div *ngIf="schedule && schedule.scheduleItems.length > 0" class="quick-actions">
+        <button class="btn btn-secondary" (click)="goToGrades()">
+          📊 Xem bảng điểm
+        </button>
+        <button class="btn btn-primary" (click)="goToRegistration()">
+          ➕ Đăng ký thêm môn
+        </button>
+        <button class="btn btn-info" (click)="exportSchedule()">
+          📄 Xuất thời khóa biểu
+        </button>
+      </div>
+    </div>
+  </div>
+</app-layout>

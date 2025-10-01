@@ -1,0 +1,130 @@
+<app-layout [menuItems]="menuItems" [userName]="userName" [userRole]="'Quản trị viên'">
+  <div class="main-card">
+    <div class="page-header">
+      <h3>📚 Quản lý môn học</h3>
+    </div>
+
+    <div class="toolbar">
+        <button class="btn btn-secondary" (click)="reset()">
+            🔄 Reset Form
+        </button>
+        <span class="spacer"></span>
+        <div class="search-container">
+            <input class="search-input" [(ngModel)]="searchText" placeholder="🔍 Search courses..." />
+            <button class="btn btn-success" (click)="loadCourses()">
+                🔍 Find
+            </button>
+        </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h4>➕ Thêm/Sửa môn học</h4>
+      </div>
+      <div class="card-body">
+        <form class="form-container" (ngSubmit)="save()">
+          <div class="form-grid grid-2">
+            <div class="form-group">
+              <label class="form-label">🏷️ Mã môn học</label>
+              <input class="form-input" [(ngModel)]="form.courseCode" name="courseCode"
+                placeholder="Nhập mã môn (ví dụ: CS101)..." required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">📖 Tên môn học</label>
+              <input class="form-input" [(ngModel)]="form.name" name="name" 
+                placeholder="Nhập tên môn học..." required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">📅 Học kỳ</label>
+              <select class="form-input" [(ngModel)]="form.semesterId" name="semesterId">
+                <option [ngValue]="null">-- Không chọn --</option>
+                <option *ngFor="let s of semesters" [ngValue]="s.id">{{ s.semester }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">🎯 Số tín chỉ</label>
+              <input class="form-input" [(ngModel)]="form.credit" name="credit" type="number"
+                placeholder="Nhập số tín chỉ..." min="1" max="6" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">🧑‍🎓 Số slot</label>
+              <input class="form-input" [(ngModel)]="form.slot" name="slot" type="number"
+                placeholder="Nhập số slot..." min="0" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">💰 Học phí (VNĐ)</label>
+              <input class="form-input" [(ngModel)]="form.fee" name="fee" type="number" step="1000"
+                placeholder="Nhập học phí..." min="0" />
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="reset()">
+              🔄 Reset
+            </button>
+            <button type="submit" class="btn btn-primary">
+              {{ editingId ? '💾 Cập nhật' : '➕ Thêm mới' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h4>📋 Danh sách môn học</h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="data-table courses-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>🏷️ Mã môn</th>
+                <th>📖 Tên môn học</th>
+                <th>📅 Học kỳ</th>
+                <th>🎯 Tín chỉ</th>
+                <th>🧑‍🎓 Slot</th>
+                <th>💰 Học phí</th>
+                <th>⚙️ Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let c of filteredCourses; let i = index" (click)="selectForEdit(c)">
+                    <td><strong>{{ i + 1 }}</strong></td>
+                    <td><strong>{{ c.courseCode }}</strong></td>
+                    <td>{{ c.name }}</td>
+                    <td>{{ getSemesterName(c.semesterId ?? null) }}</td>
+                    <td>{{ c.credit }}</td>
+                    <td>{{ c.slot }}</td>
+                    <td>{{ c.fee | number:'1.2-2' }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button type="button" class="btn btn-sm btn-success"
+                                (click)="$event.stopPropagation(); selectForEdit(c)">
+                                ✏️ Edit
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger"
+                                (click)="$event.stopPropagation(); remove(c.id)">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr *ngIf="courses.length === 0">
+                    <td colspan="8" class="no-data">
+                        📭 No courses found
+                    </td>
+                </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-layout>

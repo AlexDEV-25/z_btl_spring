@@ -1,0 +1,150 @@
+<app-layout [menuItems]="menuItems" [userName]="userName" [userRole]="'Giảng viên'">
+  <div class="main-card">
+    <div class="page-header">
+      <h3>📝 Chấm điểm sinh viên</h3>
+      <div class="header-controls">
+        <select class="semester-select" [(ngModel)]="selectedSemester" (change)="onSemesterChange()">
+          <option *ngFor="let semester of availableSemesters" [value]="semester.semester">
+            {{ semester.displayName }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Class Selection Card -->
+    <div class="card">
+      <div class="card-header">
+        <h4>🎯 Chọn lớp học</h4>
+      </div>
+      <div class="card-body">
+        <div *ngIf="error" class="alert alert-danger">
+          ⚠️ {{ error }}
+        </div>
+        <div *ngIf="loading" class="alert alert-info">
+          ⏳ Đang tải dữ liệu...
+        </div>
+        <div *ngIf="!loading && classes.length === 0" class="alert alert-warning">
+          💭 Chưa có lớp học nào được phân công
+        </div>
+
+        <div *ngIf="!loading && classes.length > 0" class="classes-grid">
+          <div *ngFor="let classInfo of classes" class="class-card"
+            [class.selected]="selectedClass?.teachingId === classInfo.teachingId" 
+            (click)="selectClass(classInfo)">
+            <div class="class-header">
+              <h5>{{ classInfo.courseCode }}</h5>
+              <span class="class-credits">🎯 {{ classInfo.credit }} tín chỉ</span>
+            </div>
+            <div class="class-name">
+              {{ classInfo.courseName }}
+            </div>
+            <div class="class-progress">
+              <div class="progress-info">
+                <span>📊 Tiến độ: {{ getGradedCount(classInfo.students) }}/{{ getTotalCount(classInfo.students) }}</span>
+                <span class="percentage">{{ getProgressPercentage(classInfo.students) }}%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="getProgressPercentage(classInfo.students)"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grading Interface -->
+    <div *ngIf="selectedClass" class="card">
+      <div class="card-header">
+        <h4>📝 Chấm điểm - {{ selectedClass.courseCode }}</h4>
+        <div class="grading-stats">
+          <span class="stat-item">
+            📊 Tiến độ: {{ getGradedCount(selectedClass.students) }}/{{ getTotalCount(selectedClass.students) }}
+          </span>
+          <span class="stat-item">
+            🎯 {{ getProgressPercentage(selectedClass.students) }}% hoàn thành
+          </span>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div *ngIf="saveMessage" class="alert" 
+          [class.alert-success]="saveMessage.includes('thành công')"
+          [class.alert-danger]="saveMessage.includes('Lỗi')">
+          {{ saveMessage }}
+        </div>
+
+        <div class="grading-actions" *ngIf="selectedClass.students.length > 0">
+          <button class="btn btn-primary" (click)="saveAllScores()" [disabled]="saving">
+            💾 Lưu tất cả điểm
+          </button>
+          <button class="btn btn-secondary" (click)="exportGrades()">
+            📄 Xuất bảng điểm
+          </button>
+        </div>
+
+        <div class="table-responsive" *ngIf="selectedClass.students.length > 0">
+          <table class="data-table grading-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>🏷️ Mã SV</th>
+                <th>👤 Họ tên</th>
+                <th>📧 Email</th>
+                <th>🧮 TP1 (0-10)</th>
+                <th>🧮 TP2 (0-10)</th>
+                <th>📝 Thi CK (0-10)</th>
+                <th>🎯 Điểm tổng</th>
+                <th>⚙️ Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let student of selectedClass.students; let i = index" 
+                [class.graded-row]="student.grade">
+                <td><strong>{{ i + 1 }}</strong></td>
+                <td><strong>{{ student.studentCode }}</strong></td>
+                <td>{{ student.fullName }}</td>
+                <td>{{ student.email }}</td>
+                <td>
+                  <input type="number" class="score-input" min="0" max="10" step="0.1"
+                    [(ngModel)]="student.componentScore1" 
+                    placeholder="0.0" 
+                    (blur)="calculateGrade(student)" />
+                </td>
+                <td>
+                  <input type="number" class="score-input" min="0" max="10" step="0.1"
+                    [(ngModel)]="student.componentScore2" 
+                    placeholder="0.0" 
+                    (blur)="calculateGrade(student)" />
+                </td>
+                <td>
+                  <input type="number" class="score-input" min="0" max="10" step="0.1"
+                    [(ngModel)]="student.finalExamScore" 
+                    placeholder="0.0" 
+                    (blur)="calculateGrade(student)" />
+                </td>
+                <td>
+                  <span class="grade-display" [class.has-grade]="student.grade">
+                    {{ student.grade || 'Chưa chấm' }}
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-success" 
+                    (click)="saveScores(student)" 
+                    [disabled]="saving"
+                    [class.loading]="saving">
+                    <span *ngIf="!saving">💾 Lưu</span>
+                    <span *ngIf="saving">⏳ Đang lưu...</span>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="selectedClass.students.length === 0" class="alert alert-info">
+          💭 Không có sinh viên nào trong lớp học này
+        </div>
+      </div>
+    </div>
+  </div>
+</app-layout>

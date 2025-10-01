@@ -1,0 +1,100 @@
+<app-layout [menuItems]="menuItems" [userName]="userName" [userRole]="'Sinh viên'">
+    <div class="main-card">
+        <div class="page-header">
+            <h3>📚 Đăng ký môn học</h3>
+        </div>
+
+        <div class="card-body">
+            <!-- Loading State -->
+            <div *ngIf="loading" class="loading-message">
+                ⏳ Đang tải dữ liệu...
+            </div>
+
+            <!-- Error Message -->
+            <div *ngIf="error" class="error-message">
+                ⚠️ {{ error }}
+            </div>
+
+            <!-- Success Message -->
+            <div *ngIf="successMessage" class="success-message">
+                ✅ {{ successMessage }}
+            </div>
+
+            <!-- Available Courses -->
+            <div *ngIf="!loading && availableCourses.length > 0">
+                <h4 style="margin-bottom: 1rem; color: var(--primary-color);">📋 Môn học có thể đăng ký</h4>
+                <div class="course-grid">
+                    <div *ngFor="let course of availableCourses" class="course-card">
+                        <div class="course-header">
+                            <div class="course-info">
+                                <h3>{{ course.courseCode }}</h3>
+                                <p class="course-name">{{ course.courseName }}</p>
+                            </div>
+                            <div class="course-credit">
+                                <span class="credit-badge">{{ course.credit }} TC</span>
+                                <div *ngIf="course.semester" class="semester-info">
+                                    <span class="semester-badge">📅 {{ course.semester }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="course-details">
+                            <div class="detail-item" *ngIf="course.lecturerName">
+                                <span class="label">👨‍🏫 Giảng viên:</span>
+                                <span class="value">{{ course.lecturerName }}</span>
+                            </div>
+                            <div class="detail-item" *ngIf="course.period && course.dayOfWeek">
+                                <span class="label">📅 Thời gian:</span>
+                                <span class="value">{{ course.dayOfWeek }}, tiết {{ course.period }}</span>
+                            </div>
+                            <div class="detail-item" *ngIf="course.classroom">
+                                <span class="label">🏫 Phòng học:</span>
+                                <span class="value">{{ course.classroom }}</span>
+                            </div>
+                            <div class="detail-item"
+                                *ngIf="course.availableSlots !== undefined && course.maxSlots !== undefined">
+                                <span class="label">👥 Slot:</span>
+                                <span class="value">{{ course.availableSlots }}/{{ course.maxSlots }}</span>
+                            </div>
+                        </div>
+
+                        <div class="course-status">
+                            <div *ngIf="course.canRegister" class="status-available">
+                                ✅ Có thể đăng ký
+                            </div>
+                            <div *ngIf="!course.canRegister" class="status-unavailable">
+                                ❌ {{ course.reason || 'Không thể đăng ký' }}
+                            </div>
+                        </div>
+
+                        <div class="course-actions">
+                            <button *ngIf="course.canRegister" class="btn btn-primary" [disabled]="processing"
+                                (click)="registerCourse(course.courseId)">
+                                {{ processing ? '⏳ Đang xử lý...' : '➕ Đăng ký' }}
+                            </button>
+                            <button *ngIf="course.canUnregister" class="btn btn-danger" [disabled]="processing"
+                                (click)="confirmUnregister(course)">
+                                {{ processing ? '⏳ Đang xử lý...' : '❌ Hủy đăng ký' }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- No Data Message -->
+            <div *ngIf="!loading && availableCourses.length === 0" class="no-data">
+                📭 Không có môn học nào có thể đăng ký
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <button class="btn btn-secondary" (click)="goToSchedule()">
+                    📅 Xem thời khóa biểu
+                </button>
+                <button class="btn btn-secondary" (click)="goToGrades()">
+                    📊 Xem bảng điểm
+                </button>
+            </div>
+        </div>
+    </div>
+</app-layout>

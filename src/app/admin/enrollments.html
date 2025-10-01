@@ -1,0 +1,133 @@
+<app-layout [menuItems]="menuItems" [userName]="userName" [userRole]="'Quản trị viên'">
+  <div class="main-card">
+    <div class="page-header">
+      <h3>📝 Quản lý đăng ký</h3>
+    </div>
+
+    <div class="toolbar">
+        <button class="btn btn-secondary" (click)="reset()">
+            🔄 Reset Form
+        </button>
+        <span class="spacer"></span>
+        <div class="search-container">
+            <input class="search-input" [(ngModel)]="searchText" placeholder="🔍 Search enrollments..." />
+            <button class="btn btn-success" (click)="applyFilter()">
+                🔍 Find
+            </button>
+        </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h4>➕ Thêm/Sửa đăng ký học</h4>
+      </div>
+      <div class="card-body">
+        <form class="form-container" (ngSubmit)="save()">
+          <div class="form-grid grid-2">
+            <div class="form-group">
+              <label class="form-label">👨‍🎓 Sinh viên</label>
+              <select class="form-input" [(ngModel)]="form.studentId" name="studentId" required>
+                <option value="">-- Chọn sinh viên --</option>
+                <option *ngFor="let student of students" [value]="student.id">
+                  {{ student.studentCode }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">📚 Môn học</label>
+              <select class="form-input" [(ngModel)]="form.courseId" name="courseId" required>
+                <option value="">-- Chọn môn học --</option>
+                <option *ngFor="let course of courses" [value]="course.id">
+                  {{ course.courseCode }} - {{ course.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">🧮 Điểm thành phần 1 (0-10)</label>
+              <input class="form-input" [(ngModel)]="form.componentScore1" name="componentScore1" 
+                type="number" min="0" max="10" step="0.1" 
+                placeholder="Nhập điểm thành phần 1..." />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">🧮 Điểm thành phần 2 (0-10)</label>
+              <input class="form-input" [(ngModel)]="form.componentScore2" name="componentScore2" 
+                type="number" min="0" max="10" step="0.1" 
+                placeholder="Nhập điểm thành phần 2..." />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">📝 Điểm thi cuối kỳ (0-10)</label>
+              <input class="form-input" [(ngModel)]="form.finalExamScore" name="finalExamScore" 
+                type="number" min="0" max="10" step="0.1" 
+                placeholder="Nhập điểm thi cuối kỳ..." />
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="reset()">
+              🔄 Reset
+            </button>
+            <button type="submit" class="btn btn-primary">
+              {{ editingId ? '💾 Cập nhật' : '➕ Thêm mới' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h4>📋 Danh sách đăng ký học</h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>👨‍🎓 Sinh viên</th>
+                <th>📚 Môn học</th>
+                <th>🧮 TP1</th>
+                <th>🧮 TP2</th>
+                <th>📝 Thi CK</th>
+                <th>🎯 Điểm</th>
+                <th>⚙️ Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let e of filteredEnrollments; let i = index" (click)="selectForEdit(e)">
+                    <td><strong>{{ i + 1 }}</strong></td>
+                    <td>{{ getStudentName(e.studentId) }}</td>
+                    <td>{{ getCourseName(e.courseId) }}</td>
+                    <td>{{ e.componentScore1 ?? '—' }}</td>
+                    <td>{{ e.componentScore2 ?? '—' }}</td>
+                    <td>{{ e.finalExamScore ?? '—' }}</td>
+                    <td>{{ e.grade || 'N/A' }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button type="button" class="btn btn-sm btn-success"
+                                (click)="$event.stopPropagation(); selectForEdit(e)">
+                                ✏️ Edit
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger"
+                                (click)="$event.stopPropagation(); remove(e.id)">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr *ngIf="enrollments.length === 0">
+                    <td colspan="8" class="no-data">
+                        📭 No enrollments found
+                    </td>
+                </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-layout>

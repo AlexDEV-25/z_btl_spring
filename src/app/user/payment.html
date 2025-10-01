@@ -1,0 +1,533 @@
+<app-layout [menuItems]="menuItems" [userName]="userName" [userRole]="'Sinh viên'">
+  <div class="main-card">
+    <div class="page-header">
+      <h3>💰 Thông tin học phí</h3>
+      
+      <div class="header-controls">
+        <!-- Semester Selector (only show when not viewing all semesters) -->
+        <div *ngIf="!showAllSemesters" class="semester-selector">
+          <label for="semesterSelect">Học kỳ:</label>
+          <select id="semesterSelect" [(ngModel)]="selectedSemester" (change)="onSemesterChange()">
+            <option *ngFor="let semester of availableSemesters" [value]="semester.semester">
+              {{ semester.displayName }}
+            </option>
+          </select>
+        </div>
+
+        <!-- View Toggle Button -->
+        <button class="btn btn-outline" (click)="toggleView()">
+          {{ showAllSemesters ? '📅 Xem theo học kỳ' : '📊 Xem tất cả' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div *ngIf="error" class="error-message">⚠️ {{ error }}</div>
+      <div *ngIf="loading" class="loading-message">⏳ Đang tải dữ liệu...</div>
+      
+      <!-- Single Semester View -->
+      <div *ngIf="!loading && !showAllSemesters && paymentInfo" class="payment-container">
+        <div class="payment-summary-card">
+          <div class="summary-header">
+            <h4>{{ paymentInfo.semesterDisplayName }}</h4>
+            <span class="status-badge" [ngClass]="getStatusBadgeClass(paymentInfo.paymentStatus)">
+              {{ getStatusText(paymentInfo.paymentStatus) }}
+            </span>
+          </div>
+
+          <div class="summary-amounts">
+            <div class="amount-item">
+              <span class="amount-label">💰 Tổng học phí:</span>
+              <span class="amount-value total">{{ formatCurrency(paymentInfo.totalAmount) }}</span>
+            </div>
+            <div class="amount-item">
+              <span class="amount-label">✅ Đã thanh toán:</span>
+              <span class="amount-value paid">{{ formatCurrency(paymentInfo.paidAmount) }}</span>
+            </div>
+            <div class="amount-item">
+              <span class="amount-label">⏳ Còn lại:</span>
+              <span class="amount-value remaining">{{ formatCurrency(paymentInfo.remainingAmount) }}</span>
+            </div>
+          </div>
+
+          <div *ngIf="paymentInfo.paymentDate" class="payment-date">
+            <span class="date-label">📅 Ngày thanh toán:</span>
+            <span class="date-value">{{ paymentInfo.paymentDate | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+
+          <div class="payment-actions">
+            <button 
+              *ngIf="paymentInfo.paymentStatus === 'PENDING'" 
+              class="btn btn-primary"
+              (click)="createPayment(paymentInfo.semester)">
+              🏦 Tạo yêu cầu thanh toán
+            </button>
+          </div>
+        </div>
+
+        <!-- Course Details -->
+        <div class="course-details-card">
+          <h4>📚 Chi tiết môn học</h4>
+          <div class="course-table-container">
+            <table class="course-table">
+              <thead>
+                <tr>
+                  <th>Mã môn</th>
+                  <th>Tên môn học</th>
+                  <th>Tín chỉ</th>
+                  <th>Học phí</th>
+                  <th>Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let course of paymentInfo.courseDetails">
+                  <td class="course-code">{{ course.courseCode }}</td>
+                  <td class="course-name">{{ course.courseName }}</td>
+                  <td class="course-credits">{{ course.credits }}</td>
+                  <td class="course-fee">{{ formatCurrency(course.fee) }}</td>
+                  <td class="course-status">
+                    <span class="status-badge status-enrolled">{{ course.enrollmentStatus }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- All Semesters View -->
+      <div *ngIf="!loading && showAllSemesters" class="all-payments-container">
+        <div *ngFor="let payment of allPaymentInfo" class="payment-semester-card">
+          <div class="semester-header">
+            <h4>{{ payment.semesterDisplayName }}</h4>
+            <span class="status-badge" [ngClass]="getStatusBadgeClass(payment.paymentStatus)">
+              {{ getStatusText(payment.paymentStatus) }}
+            </span>
+          </div>
+
+          <div class="semester-summary">
+            <div class="summary-row">
+              <div class="summary-item">
+                <span class="label">💰 Tổng học phí:</span>
+                <span class="value">{{ formatCurrency(payment.totalAmount) }}</span>
+              </div>
+              <div class="summary-item">
+                <span class="label">✅ Đã thanh toán:</span>
+                <span class="value">{{ formatCurrency(payment.paidAmount) }}</span>
+              </div>
+              <div class="summary-item">
+                <span class="label">⏳ Còn lại:</span>
+                <span class="value remaining">{{ formatCurrency(payment.remainingAmount) }}</span>
+              </div>
+            </div>
+
+            <div *ngIf="payment.paymentDate" class="payment-date-small">
+              📅 {{ payment.paymentDate | date:'dd/MM/yyyy' }}
+            </div>
+
+            <div class="course-count">
+              📚 {{ payment.courseDetails.length }} môn học
+            </div>
+
+            <div class="semester-actions">
+              <button 
+                *ngIf="payment.paymentStatus === 'PENDING'" 
+                class="btn btn-sm btn-primary"
+                (click)="createPayment(payment.semester)">
+                🏦 Tạo yêu cầu thanh toán
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && !error && (!paymentInfo || (showAllSemesters && allPaymentInfo.length === 0))" class="empty-state">
+        <div class="empty-icon">💰</div>
+        <h4>Chưa có thông tin học phí</h4>
+        <p>Bạn chưa đăng ký môn học nào hoặc chưa có thông tin học phí.</p>
+      </div>
+    </div>
+  </div>
+</app-layout>
+
+<style>
+.payment-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.semester-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.semester-selector label {
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.semester-selector select {
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  min-width: 200px;
+}
+
+.payment-summary-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.summary-header h4 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 1.5rem;
+}
+
+.status-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.status-paid {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-failed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-enrolled {
+  background: #dbeafe;
+  color: #1e40af;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.summary-amounts {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.amount-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.amount-label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.amount-value {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.amount-value.total {
+  color: #1f2937;
+}
+
+.amount-value.paid {
+  color: #059669;
+}
+
+.amount-value.remaining {
+  color: #dc2626;
+}
+
+.payment-date {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f0f9ff;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.date-label {
+  font-weight: 600;
+  color: #0369a1;
+}
+
+.date-value {
+  color: #0369a1;
+}
+
+.payment-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.course-details-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.course-details-card h4 {
+  margin: 0 0 1.5rem 0;
+  color: #1f2937;
+}
+
+.course-table-container {
+  overflow-x: auto;
+}
+
+.course-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.course-table th,
+.course-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.course-table th {
+  background: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+.course-table tr:hover {
+  background: #f9fafb;
+}
+
+.course-code {
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+.course-name {
+  color: #1f2937;
+}
+
+.course-credits {
+  text-align: center;
+  font-weight: 600;
+}
+
+.course-fee {
+  font-weight: 600;
+  color: #059669;
+}
+
+.all-payments-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.payment-semester-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.semester-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.semester-header h4 {
+  margin: 0;
+  color: #1f2937;
+}
+
+.semester-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.summary-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 6px;
+}
+
+.summary-item .label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.summary-item .value {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.summary-item .value.remaining {
+  color: #dc2626;
+}
+
+.payment-date-small {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.course-count {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.semester-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  font-size: 0.9rem;
+}
+
+.btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: #3b82f6;
+  border: 1px solid #3b82f6;
+}
+
+.btn-outline:hover {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state h4 {
+  margin: 0 0 0.5rem 0;
+  color: #374151;
+}
+
+.error-message {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #ef4444;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .header-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .semester-selector {
+    justify-content: space-between;
+  }
+
+  .summary-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .summary-row {
+    grid-template-columns: 1fr;
+  }
+
+  .course-table-container {
+    font-size: 0.9rem;
+  }
+
+  .course-table th,
+  .course-table td {
+    padding: 0.75rem 0.5rem;
+  }
+}
+</style>

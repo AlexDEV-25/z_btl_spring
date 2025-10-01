@@ -1,0 +1,106 @@
+<app-layout [menuItems]="menuItems" [userName]="userName" [userRole]="'Quản trị viên'">
+  <div class="main-card">
+    <div class="page-header">
+      <h3>👨‍🏫 Quản lý giảng viên</h3>
+    </div>
+
+    <div class="toolbar">
+        <button class="btn btn-secondary" (click)="reset()">
+            🔄 Reset Form
+        </button>
+        <span class="spacer"></span>
+        <div class="search-container">
+            <input class="search-input" [(ngModel)]="searchText" placeholder="🔍 Search lecturers..." />
+            <button class="btn btn-success" (click)="loadLecturers()">
+                🔍 Find
+            </button>
+        </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h4>➕ Thêm/Sửa giảng viên</h4>
+      </div>
+      <div class="card-body">
+        <form class="form-container" (ngSubmit)="save()">
+          <div class="form-grid grid-2">
+            <div class="form-group">
+              <label class="form-label">👤 Người dùng</label>
+              <select class="form-input" [(ngModel)]="form.userId" name="userId" required>
+                <option value="">-- Chọn người dùng --</option>
+                <option *ngFor="let user of availableUsers" [value]="user.id">
+                  {{ user.username }} - {{ user.fullName }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">🏷️ Mã giảng viên</label>
+              <input class="form-input" [(ngModel)]="form.lecturerCode" name="lecturerCode"
+                placeholder="Nhập mã giảng viên (ví dụ: GV001)..." required />
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="reset()">
+              🔄 Reset
+            </button>
+            <button type="submit" class="btn btn-primary">
+              {{ editingId ? '💾 Cập nhật' : '➕ Thêm mới' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h4>📋 Danh sách giảng viên</h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="data-table lecturers-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>👤 Người dùng</th>
+                <th>🏷️ Mã giảng viên</th>
+                <th>⚙️ Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let l of filteredLecturers; let i = index" (click)="selectForEdit(l)">
+                    <td><strong>{{ i + 1 }}</strong></td>
+                    <td>{{ getUserName(l.userId) }}</td>
+                    <td><strong>{{ l.lecturerCode }}</strong></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button 
+                                type="button" 
+                                class="btn btn-sm btn-success" 
+                                (click)="$event.stopPropagation(); selectForEdit(l)"
+                            >
+                                ✏️ Edit
+                            </button>
+                            <button 
+                                type="button" 
+                                class="btn btn-sm btn-danger" 
+                                (click)="$event.stopPropagation(); remove(l.id)"
+                            >
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr *ngIf="lecturers.length === 0">
+                    <td colspan="4" class="no-data">
+                        📭 No lecturers found
+                    </td>
+                </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-layout>
