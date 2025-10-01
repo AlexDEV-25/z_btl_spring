@@ -17,8 +17,6 @@ import { AdminSemestersComponent } from './admin/semesters';
 import { TeacherClassesComponent } from './teacher/classes';
 import { TeacherGradingComponent } from './teacher/grading';
 import { TeacherProfileComponent } from './teacher/profile';
-import { TestConnectionComponent } from './teacher/test-connection';
-import { DirectTestComponent } from './teacher/direct-test';
 
 import { UserScheduleComponent } from './user/schedule';
 import { UserGradesComponent } from './user/grades';
@@ -58,8 +56,6 @@ export const routes: Routes = [
             { path: 'classes', component: TeacherClassesComponent },
             { path: 'grading', component: TeacherGradingComponent },
             { path: 'profile', component: TeacherProfileComponent },
-            { path: 'test', component: TestConnectionComponent },
-            { path: 'direct-test', component: DirectTestComponent },
             { path: '', redirectTo: 'classes', pathMatch: 'full' }
         ]
     },

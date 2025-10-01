@@ -88,88 +88,11 @@ export class UserGradesComponent implements OnInit {
             error: (error) => {
                 console.error('Error loading grades:', error);
                 this.error = `Lỗi khi tải bảng điểm: ${error.status} - ${error.message || error.statusText}`;
-                // Show mock data for demo purposes
-                this.loadMockGrades();
                 this.loading = false;
             }
         });
     }
 
-    private loadMockGrades() {
-        console.log('Loading mock grades data...');
-        const currentUser = this.authService.getCurrentUser();
-        this.grades = {
-            studentId: this.studentId,
-            studentCode: currentUser?.username || 'SV001',
-            studentName: currentUser?.fullName || 'Nguyễn Văn A',
-            gpa: 3.25,
-            totalCredits: 15,
-            completedCredits: 9,
-            gradeItems: [
-                {
-                    courseId: 1,
-                    courseCode: 'CS101',
-                    courseName: 'Lập trình cơ bản',
-                    credit: 3,
-                    componentScore1: 8.5,
-                    componentScore2: 9.0,
-                    finalExamScore: 8.0,
-                    grade: 'B+',
-                    semester: '2024-1',
-                    status: 'Đã hoàn thành'
-                },
-                {
-                    courseId: 2,
-                    courseCode: 'MATH201',
-                    courseName: 'Toán cao cấp',
-                    credit: 4,
-                    componentScore1: 7.5,
-                    componentScore2: 8.0,
-                    finalExamScore: 7.0,
-                    grade: 'B',
-                    semester: '2024-1',
-                    status: 'Đã hoàn thành'
-                },
-                {
-                    courseId: 3,
-                    courseCode: 'ENG101',
-                    courseName: 'Tiếng Anh 1',
-                    credit: 2,
-                    componentScore1: 9.0,
-                    componentScore2: 8.5,
-                    finalExamScore: 9.0,
-                    grade: 'A',
-                    semester: '2024-1',
-                    status: 'Đã hoàn thành'
-                },
-                {
-                    courseId: 4,
-                    courseCode: 'PHY101',
-                    courseName: 'Vật lý đại cương',
-                    credit: 3,
-                    componentScore1: 7.0,
-                    componentScore2: 7.5,
-                    finalExamScore: null,
-                    grade: null,
-                    semester: '2024-2',
-                    status: 'Đang học'
-                },
-                {
-                    courseId: 5,
-                    courseCode: 'CHEM101',
-                    courseName: 'Hóa học đại cương',
-                    credit: 3,
-                    componentScore1: null,
-                    componentScore2: null,
-                    finalExamScore: null,
-                    grade: null,
-                    semester: '2024-2',
-                    status: 'Đang học'
-                }
-            ]
-        };
-        this.filteredGrades = [...this.grades.gradeItems];
-    }
 
     filterGrades() {
         if (!this.grades) return;
