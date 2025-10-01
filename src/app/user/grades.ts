@@ -23,7 +23,7 @@ export class UserGradesComponent implements OnInit {
     userName = '';
     selectedSemester = '2024-1';
     availableSemesters: SemesterInfo[] = [];
-    
+
     // Menu items for sidebar
     menuItems: MenuItem[] = [
         { icon: '📅', label: 'Thời khóa biểu', route: '/user/schedule' },
@@ -42,7 +42,7 @@ export class UserGradesComponent implements OnInit {
         private userService: UserService,
         private router: Router,
         private authService: AuthService
-    ) {}
+    ) { }
 
     ngOnInit() {
         const currentUser = this.authService.getCurrentUser();
@@ -77,7 +77,7 @@ export class UserGradesComponent implements OnInit {
     loadGrades() {
         this.loading = true;
         this.error = '';
-        
+
         this.userService.getStudentGrades(this.selectedSemester).subscribe({
             next: (data) => {
                 console.log('Grades loaded successfully:', data);
@@ -98,12 +98,12 @@ export class UserGradesComponent implements OnInit {
         if (!this.grades) return;
 
         this.filteredGrades = this.grades.gradeItems.filter(item => {
-            const matchesSearch = !this.searchTerm || 
+            const matchesSearch = !this.searchTerm ||
                 item.courseCode.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
                 item.courseName.toLowerCase().includes(this.searchTerm.toLowerCase());
-            
+
             const matchesStatus = !this.statusFilter || item.status === this.statusFilter;
-            
+
             const matchesSemester = !this.semesterFilter || item.semester === this.semesterFilter;
 
             return matchesSearch && matchesStatus && matchesSemester;
@@ -145,7 +145,7 @@ export class UserGradesComponent implements OnInit {
 
     getGradeClass(grade: string | null | undefined): string {
         if (!grade) return '';
-        
+
         const gradeMap: { [key: string]: string } = {
             'A': 'grade-a',
             'B+': 'grade-b-plus',
@@ -154,7 +154,7 @@ export class UserGradesComponent implements OnInit {
             'D': 'grade-d',
             'F': 'grade-f'
         };
-        
+
         return gradeMap[grade] || '';
     }
 
@@ -164,7 +164,7 @@ export class UserGradesComponent implements OnInit {
             'Đang học': 'in-progress',
             'Chưa học': 'not-started'
         };
-        
+
         return statusMap[status] || '';
     }
 
