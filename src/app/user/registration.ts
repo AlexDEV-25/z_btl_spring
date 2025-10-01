@@ -16,6 +16,7 @@ import { MenuItem } from '../shared/sidebar.component';
 export class UserRegistrationComponent implements OnInit {
     availableCourses: CourseInfo[] = [];
     enrolledCourses: CourseInfo[] = [];
+    completedCourses: CourseInfo[] = []; // Môn đã học xong
     loading = false;
     processing = false;
     error = '';
@@ -41,7 +42,9 @@ export class UserRegistrationComponent implements OnInit {
     ngOnInit() {
         this.userName = 'Sinh viên'; // Set default or get from auth service
         this.loadSemesters();
-        this.loadAvailableCourses();
+        this.loadCompletedCourses().then(() => {
+            this.loadAvailableCourses();
+        });
     }
 
     loadSemesters() {
@@ -66,6 +69,34 @@ export class UserRegistrationComponent implements OnInit {
         });
     }
 
+    loadCompletedCourses(): Promise<void> {
+        return new Promise((resolve) => {
+            // Lấy danh sách môn đã học từ tất cả các học kỳ
+            this.userService.getStudentGrades().subscribe({
+                next: (grades) => {
+                    console.log('Student grades loaded:', grades);
+                    // Lọc các môn đã hoàn thành (có điểm)
+                    this.completedCourses = grades.gradeItems
+                        .filter(item => item.status === 'Đã hoàn thành' || item.grade !== null)
+                        .map(item => ({
+                            courseId: item.courseId,
+                            courseCode: item.courseCode,
+                            courseName: item.courseName,
+                            credit: item.credit,
+                            canRegister: false,
+                            reason: 'Đã hoàn thành'
+                        }));
+                    resolve();
+                },
+                error: (error) => {
+                    console.error('Error loading completed courses:', error);
+                    this.completedCourses = [];
+                    resolve();
+                }
+            });
+        });
+    }
+
     loadAvailableCourses() {
         this.loading = true;
         this.error = '';
@@ -73,33 +104,20 @@ export class UserRegistrationComponent implements OnInit {
         this.userService.getAvailableCourses(this.selectedSemester).subscribe({
             next: (courses) => {
                 console.log('Available courses loaded:', courses);
-                this.availableCourses = courses;
+                // Lọc bỏ các môn đã hoàn thành
+                this.availableCourses = courses.filter(course => 
+                    !this.isCompleted(course.courseId) && !this.isEnrolled(course.courseId)
+                );
                 this.loading = false;
             },
             error: (error) => {
                 console.error('Error loading available courses:', error);
                 this.error = 'Lỗi khi tải danh sách môn học';
-                this.loadMockData(); // Fallback to mock data
                 this.loading = false;
             }
         });
     }
 
-    private loadMockData() {
-        console.log('Loading mock course data...');
-        // Mock available courses
-        this.availableCourses = [
-            { courseId: 1, courseCode: 'MATH101', courseName: 'Toán cao cấp', credit: 4, canRegister: true, availableSlots: 15, maxSlots: 50, lecturerName: 'TS. Nguyễn Văn A', period: '1-2', dayOfWeek: 'Thứ 2', classroom: 'A101' },
-            { courseId: 2, courseCode: 'PHYS101', courseName: 'Vật lý đại cương', credit: 3, canRegister: true, availableSlots: 8, maxSlots: 40, lecturerName: 'PGS. Trần Thị B', period: '3-4', dayOfWeek: 'Thứ 3', classroom: 'B205' },
-            { courseId: 3, courseCode: 'CHEM101', courseName: 'Hóa học đại cương', credit: 3, canRegister: false, reason: 'Hết slot', availableSlots: 0, maxSlots: 35, lecturerName: 'ThS. Lê Văn C', period: '5-6', dayOfWeek: 'Thứ 4', classroom: 'C301' },
-            { courseId: 4, courseCode: 'ENG101', courseName: 'Tiếng Anh 1', credit: 2, canRegister: true, availableSlots: 25, maxSlots: 30, lecturerName: 'Ms. Sarah Johnson', period: '7-8', dayOfWeek: 'Thứ 5', classroom: 'D102' }
-        ];
-
-        // Mock enrolled courses
-        this.enrolledCourses = [
-            { courseId: 5, courseCode: 'CS101', courseName: 'Lập trình cơ bản', credit: 3, canRegister: false }
-        ];
-    }
 
     async registerCourse(courseId: number) {
         this.processing = true;
@@ -116,9 +134,12 @@ export class UserRegistrationComponent implements OnInit {
 
             if (response?.success) {
                 this.successMessage = response.message || 'Đăng ký môn học thành công!';
-                // Reload the entire page after successful registration
+                // Reload data after successful registration
                 setTimeout(() => {
-                    window.location.reload();
+                    this.loadCompletedCourses().then(() => {
+                        this.loadAvailableCourses();
+                    });
+                    this.successMessage = '';
                 }, 1500); // Wait 1.5 seconds to show success message
             } else {
                 this.error = response?.message || 'Lỗi khi đăng ký môn học';
@@ -147,9 +168,12 @@ export class UserRegistrationComponent implements OnInit {
 
             if (response?.success) {
                 this.successMessage = response.message || 'Hủy đăng ký môn học thành công!';
-                // Reload the entire page after successful unregistration
+                // Reload data after successful unregistration
                 setTimeout(() => {
-                    window.location.reload();
+                    this.loadCompletedCourses().then(() => {
+                        this.loadAvailableCourses();
+                    });
+                    this.successMessage = '';
                 }, 1500); // Wait 1.5 seconds to show success message
             } else {
                 this.error = response?.message || 'Lỗi khi hủy đăng ký môn học';
@@ -174,6 +198,10 @@ export class UserRegistrationComponent implements OnInit {
         return this.enrolledCourses.some(c => c.courseId === courseId);
     }
 
+    isCompleted(courseId: number): boolean {
+        return this.completedCourses.some(c => c.courseId === courseId);
+    }
+
     logout() {
         if (confirm('🚪 Bạn có chắc chắn muốn đăng xuất?')) {
             localStorage.removeItem('token');
@@ -189,5 +217,10 @@ export class UserRegistrationComponent implements OnInit {
 
     goToGrades() {
         this.router.navigate(['/user/grades']);
+    }
+
+    onSemesterChange() {
+        console.log('Semester changed to:', this.selectedSemester);
+        this.loadAvailableCourses();
     }
 }

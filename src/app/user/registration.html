@@ -2,6 +2,14 @@
     <div class="main-card">
         <div class="page-header">
             <h3>📚 Đăng ký môn học</h3>
+            <div class="semester-selector">
+                <label for="semester">Học kỳ:</label>
+                <select id="semester" [(ngModel)]="selectedSemester" (change)="onSemesterChange()">
+                    <option *ngFor="let semester of availableSemesters" [value]="semester.semester">
+                        {{ semester.displayName }}
+                    </option>
+                </select>
+            </div>
         </div>
 
         <div class="card-body">
@@ -18,6 +26,31 @@
             <!-- Success Message -->
             <div *ngIf="successMessage" class="success-message">
                 ✅ {{ successMessage }}
+            </div>
+
+            <!-- Statistics -->
+            <div *ngIf="!loading" class="registration-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Môn có thể đăng ký</div>
+                        <div class="stat-value">{{ getAvailableCoursesCount() }}</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Môn đã hoàn thành</div>
+                        <div class="stat-value">{{ completedCourses.length }}</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📝</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Môn đã đăng ký</div>
+                        <div class="stat-value">{{ enrolledCourses.length }}</div>
+                    </div>
+                </div>
             </div>
 
             <!-- Available Courses -->
