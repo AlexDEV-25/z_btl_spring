@@ -91,7 +91,10 @@
               <th>Điểm TP1</th>
               <th>Điểm TP2</th>
               <th>Điểm CK</th>
+              <th>Điểm TK</th>
+              <th>Hệ số 4</th>
               <th>Điểm chữ</th>
+              <th>Xếp loại</th>
               <th>Trạng thái</th>
               <th>Học kỳ</th>
             </tr>
@@ -115,9 +118,27 @@
               <td class="score" [class.has-score]="item.finalExamScore !== null">
                 {{ item.finalExamScore !== null ? (item.finalExamScore | number:'1.1-1') : '-' }}
               </td>
+              <td class="score total-score" [class.has-score]="item.totalScore !== null">
+                <span *ngIf="item.totalScore !== null" class="total-score-value">
+                  {{ item.totalScore | number:'1.1-1' }}
+                </span>
+                <span *ngIf="item.totalScore === null">-</span>
+              </td>
+              <td class="score coefficient-score" [class.has-score]="item.scoreCoefficient4 !== null">
+                <span *ngIf="item.scoreCoefficient4 !== null" class="coefficient-value">
+                  {{ item.scoreCoefficient4 | number:'1.1-1' }}
+                </span>
+                <span *ngIf="item.scoreCoefficient4 === null">-</span>
+              </td>
               <td class="grade" [class]="getGradeClass(item.grade)">
                 <span class="grade-badge" *ngIf="item.grade">{{ item.grade }}</span>
-                <span class="no-grade" *ngIf="!item.grade">Chưa có</span>
+                <span *ngIf="!item.grade" class="no-grade">-</span>
+              </td>
+              <td class="classification" [class]="getClassificationClass(item.totalScore)">
+                <span *ngIf="item.totalScore !== null" class="classification-badge">
+                  {{ getClassification(item.totalScore) }}
+                </span>
+                <span *ngIf="item.totalScore === null">-</span>
               </td>
               <td class="status">
                 <span class="status-badge" [class]="getStatusClass(item.status)">

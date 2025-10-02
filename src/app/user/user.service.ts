@@ -33,6 +33,8 @@ export interface GradeItem {
     componentScore1?: number | null;
     componentScore2?: number | null;
     finalExamScore?: number | null;
+    totalScore?: number | null;
+    scoreCoefficient4?: number | null;
     grade?: string | null;
     semester: string;
     status: string;
@@ -46,6 +48,10 @@ export interface StudentGrades {
     totalCredits: number;
     completedCredits: number;
     gradeItems: GradeItem[];
+    // Statistics from backend
+    totalCourses: number;
+    completedCourses: number;
+    inProgressCourses: number;
 }
 
 export interface CourseInfo {
@@ -186,6 +192,14 @@ export class UserService {
      */
     changePassword(request: ChangePasswordRequest): Observable<ChangePasswordResponse> {
         return this.http.post<ChangePasswordResponse>(`${this.baseUrl}/change-password`, request);
+    }
+
+    /**
+     * Xuất bảng điểm ra file CSV
+     */
+    exportGrades(semester?: string): Observable<Blob> {
+        const url = semester ? `${this.baseUrl}/grades/export?semester=${semester}` : `${this.baseUrl}/grades/export`;
+        return this.http.get(url, { responseType: 'blob' });
     }
 
     /**

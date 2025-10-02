@@ -6,6 +6,7 @@ import { UserService, StudentGrades, GradeItem, SemesterInfo } from './user.serv
 import { AuthService } from '../auth.service';
 import { LayoutComponent } from '../shared/layout.component';
 import { MenuItem } from '../shared/sidebar.component';
+// Removed GradeCalculationService - logic moved to backend
 
 @Component({
     selector: 'app-user-grades',
@@ -64,12 +65,6 @@ export class UserGradesComponent implements OnInit {
             },
             error: (error) => {
                 console.error('Error loading semesters:', error);
-                // Fallback to hardcoded semesters
-                this.availableSemesters = [
-                    { id: 1, semester: '2024-2', displayName: 'Học kỳ 2 (2024-2025)' },
-                    { id: 2, semester: '2024-1', displayName: 'Học kỳ 1 (2024-2025)' },
-                    { id: 3, semester: '2024-3', displayName: 'Học kỳ hè (2024-2025)' }
-                ];
             }
         });
     }
@@ -129,13 +124,11 @@ export class UserGradesComponent implements OnInit {
     }
 
     getCompletedCount(): number {
-        if (!this.grades) return 0;
-        return this.grades.gradeItems.filter(item => item.status === 'Đã hoàn thành').length;
+        return this.grades?.completedCourses || 0;
     }
 
     getInProgressCount(): number {
-        if (!this.grades) return 0;
-        return this.grades.gradeItems.filter(item => item.status === 'Đang học').length;
+        return this.grades?.inProgressCourses || 0;
     }
 
     getGradeCount(grade: string): number {
@@ -147,15 +140,60 @@ export class UserGradesComponent implements OnInit {
         if (!grade) return '';
 
         const gradeMap: { [key: string]: string } = {
+            'A+': 'grade-a-plus',
             'A': 'grade-a',
             'B+': 'grade-b-plus',
             'B': 'grade-b',
+            'C+': 'grade-c-plus',
             'C': 'grade-c',
+            'D+': 'grade-d-plus',
             'D': 'grade-d',
             'F': 'grade-f'
         };
 
         return gradeMap[grade] || '';
+    }
+
+    getClassification(totalScore?: number | null): string | null {
+        if (totalScore == null) return null;
+
+        if (totalScore >= 9.5) return "Xuất sắc";
+        if (totalScore >= 8.5) return "Giỏi";
+        if (totalScore >= 8.0) return "Khá giỏi";
+        if (totalScore >= 7.0) return "Khá";
+        if (totalScore >= 6.5) return "TB khá";
+        if (totalScore >= 5.5) return "Trung bình";
+        if (totalScore >= 5.0) return "TB yếu";
+        if (totalScore >= 4.0) return "Yếu (vẫn qua môn)";
+        return "Trượt";
+    }
+
+    getScoreRange(totalScore?: number | null): string | null {
+        if (totalScore == null) return null;
+
+        if (totalScore >= 9.5) return "9.5 – 10.0";
+        if (totalScore >= 8.5) return "8.5 – 9.4";
+        if (totalScore >= 8.0) return "8.0 – 8.4";
+        if (totalScore >= 7.0) return "7.0 – 7.9";
+        if (totalScore >= 6.5) return "6.5 – 6.9";
+        if (totalScore >= 5.5) return "5.5 – 6.4";
+        if (totalScore >= 5.0) return "5.0 – 5.4";
+        if (totalScore >= 4.0) return "4.0 – 4.9";
+        return "< 4.0";
+    }
+
+    getClassificationClass(totalScore?: number | null): string {
+        if (totalScore == null) return '';
+
+        if (totalScore >= 9.5) return 'classification-excellent';
+        if (totalScore >= 8.5) return 'classification-good';
+        if (totalScore >= 8.0) return 'classification-fairly-good';
+        if (totalScore >= 7.0) return 'classification-fair';
+        if (totalScore >= 6.5) return 'classification-average-fair';
+        if (totalScore >= 5.5) return 'classification-average';
+        if (totalScore >= 5.0) return 'classification-weak-average';
+        if (totalScore >= 4.0) return 'classification-weak';
+        return 'classification-fail';
     }
 
     getStatusClass(status: string): string {
@@ -171,33 +209,21 @@ export class UserGradesComponent implements OnInit {
     exportGrades() {
         if (!this.grades) return;
 
-        // Create CSV content
-        const headers = ['Mã môn', 'Tên môn học', 'Tín chỉ', 'Điểm TP1', 'Điểm TP2', 'Điểm CK', 'Điểm chữ', 'Trạng thái', 'Học kỳ'];
-        const csvContent = [
-            headers.join(','),
-            ...this.grades.gradeItems.map(item => [
-                item.courseCode,
-                `"${item.courseName}"`,
-                item.credit,
-                item.componentScore1 ?? '',
-                item.componentScore2 ?? '',
-                item.finalExamScore ?? '',
-                item.grade ?? '',
-                `"${item.status}"`,
-                item.semester ?? ''
-            ].join(','))
-        ].join('\n');
-
-        // Create and download file
-        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', `bang_diem_${this.grades.studentCode}_${new Date().toISOString().split('T')[0]}.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // Call backend API to generate and download CSV
+        this.userService.exportGrades(this.selectedSemester).subscribe({
+            next: (blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `bang_diem_${this.grades?.studentCode}_${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+                window.URL.revokeObjectURL(url);
+            },
+            error: (error) => {
+                console.error('Error exporting grades:', error);
+                alert('Có lỗi xảy ra khi xuất bảng điểm!');
+            }
+        });
     }
 
     goToSchedule() {

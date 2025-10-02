@@ -120,4 +120,11 @@ export class TeacherService {
     changePassword(request: ChangePasswordRequest): Observable<ChangePasswordResponse> {
         return this.http.post<ChangePasswordResponse>(`${this.baseUrl}/change-password`, request);
     }
+
+    /**
+     * Xuất bảng điểm lớp học ra file CSV
+     */
+    exportClassGrades(teachingId: number): Observable<Blob> {
+        return this.http.get(`${this.baseUrl}/classes/${teachingId}/export`, { responseType: 'blob' });
+    }
 }

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -6,26 +6,28 @@ import { Router } from '@angular/router';
 import { LayoutComponent } from '../shared/layout.component';
 import { MenuItem } from '../shared/sidebar.component';
 
-interface Enrollment {
-    id?: number;
-    studentId: number | null;
-    courseId: number | null;
-    componentScore1?: number | null;
-    componentScore2?: number | null;
-    finalExamScore?: number | null;
-    grade?: string;
-}
-
-interface Student {
+interface DepartmentInfo {
     id: number;
-    studentCode: string;
-    userId: number;
-}
-
-interface Course {
-    id: number;
-    courseCode: string;
     name: string;
+    code: string;
+}
+
+interface SemesterInfo {
+    id: number;
+    semester: string;
+}
+
+interface ScholarshipCandidate {
+    studentId: number;
+    studentCode: string;
+    fullName: string;
+    className: string;
+    departmentName: string;
+    gpa: number;
+    totalCredits: number;
+    completedCredits: number;
+    semester: string;
+    rank: number;
 }
 
 @Component({
@@ -35,20 +37,21 @@ interface Course {
     templateUrl: './enrollments.html',
     styleUrls: ['../shared/modern-theme.css']
 })
-export class AdminEnrollmentsComponent {
-    baseUrl = 'http://localhost:8080/api/enrollments';
-    studentsUrl = 'http://localhost:8080/api/students';
-    coursesUrl = 'http://localhost:8080/api/courses';
+export class AdminEnrollmentsComponent implements OnInit {
+    baseUrl = 'http://localhost:8080/api/admin/enrollments';
 
-    enrollments: Enrollment[] = [];
-    filteredEnrollments: Enrollment[] = [];
-    students: Student[] = [];
-    courses: Course[] = [];
-    searchText = '';
-    form: Enrollment = { studentId: null, courseId: null, componentScore1: null, componentScore2: null, finalExamScore: null, grade: '' };
-    editingId: number | null = null;
-    userName = 'Quản trị viên';
-    
+    departments: DepartmentInfo[] = [];
+    semesters: SemesterInfo[] = [];
+    candidates: ScholarshipCandidate[] = [];
+    selectedDepartmentId: number | null = null;
+    selectedSemester: string = '';
+    loading = false;
+    exporting = false;
+    error = '';
+    searchPerformed = false;
+    userName = 'Admin';
+    viewMode: 'table' | 'cards' = 'table';
+
     // Menu items for admin sidebar
     menuItems: MenuItem[] = [
         { icon: '👥', label: 'Sinh viên', route: '/admin/students' },
@@ -56,113 +59,163 @@ export class AdminEnrollmentsComponent {
         { icon: '🏢', label: 'Lớp học', route: '/admin/classes' },
         { icon: '👨‍🏫', label: 'Giảng viên', route: '/admin/lecturers' },
         { icon: '📅', label: 'Học kỳ', route: '/admin/semesters' },
-        { icon: '📝', label: 'Thành tích', route: '/admin/enrollments' },
+        { icon: '🏆', label: 'Học bổng', route: '/admin/enrollments' },
         { icon: '👤', label: 'Người dùng', route: '/admin/users' },
         { icon: '🏛️', label: 'Khoa', route: '/admin/departments' },
-        { icon: '📖', label: 'Phân công', route: '/admin/teachings' },
-        { icon: '💰', label: 'Học phí', route: '/admin/payments' }
+        { icon: '💰', label: 'Thanh toán', route: '/admin/payments' },
+        { icon: '📖', label: 'Phân công', route: '/admin/teachings' }
     ];
 
-    constructor(private http: HttpClient, private router: Router) {
-        this.loadEnrollments();
-        this.loadStudents();
-        this.loadCourses();
+    constructor(private http: HttpClient, private router: Router) { }
+
+    ngOnInit() {
+        this.loadDepartments();
+        this.loadSemesters();
+        this.loadScholarshipCandidates();
     }
 
-    loadEnrollments() {
-        this.http.get<Enrollment[]>(this.baseUrl).subscribe({
-            next: data => { this.enrollments = data || []; this.applyFilter(); },
-            error: err => console.error('Load enrollments failed', err)
+    loadDepartments() {
+        console.log('Loading departments from:', `${this.baseUrl}/departments`);
+        this.http.get<DepartmentInfo[]>(`${this.baseUrl}/departments`).subscribe({
+            next: (departments) => {
+                this.departments = departments;
+                console.log('Loaded departments:', departments);
+                console.log('Departments array length:', departments.length);
+                if (departments.length === 0) {
+                    console.warn('No departments found in database');
+                } else {
+                    console.log('First department:', departments[0]);
+                }
+            },
+            error: (error) => {
+                console.error('Error loading departments:', error);
+                console.error('Error details:', error.error);
+                this.departments = [];
+            }
         });
     }
 
-    applyFilter() {
-        const q = (this.searchText || '').trim().toLowerCase();
-        if (!q) { this.filteredEnrollments = [...this.enrollments]; return; }
-        this.filteredEnrollments = this.enrollments.filter(e => {
-            const studentName = this.getStudentName(e.studentId).toLowerCase();
-            const courseName = this.getCourseName(e.courseId).toLowerCase();
-            return (
-                studentName.includes(q) ||
-                courseName.includes(q) ||
-                (e.grade || '').toLowerCase().includes(q)
-            );
+    loadSemesters() {
+        console.log('Loading semesters from:', `${this.baseUrl}/semesters`);
+        this.http.get<SemesterInfo[]>(`${this.baseUrl}/semesters`).subscribe({
+            next: (semesters) => {
+                this.semesters = semesters;
+                console.log('Loaded semesters:', semesters);
+                console.log('Semesters array length:', semesters.length);
+                if (semesters.length === 0) {
+                    console.warn('No semesters found in database');
+                } else {
+                    console.log('First semester:', semesters[0]);
+                }
+            },
+            error: (error) => {
+                console.error('Error loading semesters:', error);
+                console.error('Error details:', error.error);
+                this.semesters = [];
+            }
         });
     }
 
-    loadStudents() {
-        this.http.get<Student[]>(this.studentsUrl).subscribe({
-            next: data => this.students = data || [],
-            error: err => console.error('Load students failed', err)
-        });
+    onFilterChange() {
+        this.loadScholarshipCandidates();
     }
+    loadScholarshipCandidates() {
+        this.loading = true;
+        this.error = '';
+        this.searchPerformed = true;
 
-    loadCourses() {
-        this.http.get<Course[]>(this.coursesUrl).subscribe({
-            next: data => this.courses = data || [],
-            error: err => console.error('Load courses failed', err)
-        });
-    }
-
-    getStudentName(studentId: number | null): string {
-        if (!studentId) return 'N/A';
-        const student = this.students.find(s => s.id === studentId);
-        return student ? student.studentCode : 'Unknown';
-    }
-
-    getCourseName(courseId: number | null): string {
-        if (!courseId) return 'N/A';
-        const course = this.courses.find(c => c.id === courseId);
-        return course ? `${course.courseCode} - ${course.name}` : 'Unknown';
-    }
-
-    reset() {
-        this.form = { studentId: null, courseId: null, componentScore1: null, componentScore2: null, finalExamScore: null, grade: '' };
-        this.editingId = null;
-    }
-
-    selectForEdit(e: Enrollment) {
-        this.editingId = e.id ?? null;
-        this.form = { ...e };
-    }
-
-    save() {
-        const payload: Enrollment = {
-            studentId: this.form.studentId,
-            courseId: this.form.courseId,
-            componentScore1: this.form.componentScore1,
-            componentScore2: this.form.componentScore2,
-            finalExamScore: this.form.finalExamScore,
-            grade: this.form.grade
-        };
-
-        if (!payload.studentId || !payload.courseId) return;
-
-        if (this.editingId) {
-            this.http.put(`${this.baseUrl}/${this.editingId}`, payload, { responseType: 'text' }).subscribe({
-                next: () => { this.loadEnrollments(); this.reset(); },
-                error: err => console.error('Update failed', err)
-            });
-        } else {
-            this.http.post(this.baseUrl, payload, { responseType: 'text' }).subscribe({
-                next: () => { this.loadEnrollments(); this.reset(); },
-                error: err => console.error('Create failed', err)
-            });
+        // Build query parameters
+        const params: any = {};
+        if (this.selectedDepartmentId) {
+            params.departmentId = this.selectedDepartmentId;
         }
+        if (this.selectedSemester) {
+            params.semester = this.selectedSemester;
+        }
+
+        console.log('Loading students eligible for scholarship (GPA >= 3.6) with params:', params);
+
+        this.http.get<ScholarshipCandidate[]>(`${this.baseUrl}/scholarships/eligible-students`, { params }).subscribe({
+            next: (candidates) => {
+                this.candidates = candidates;
+                this.loading = false;
+                console.log('Loaded eligible scholarship candidates:', candidates);
+                console.log(`Found ${candidates.length} students with GPA >= 3.6`);
+            },
+            error: (error) => {
+                console.error('Error loading eligible scholarship candidates:', error);
+                this.error = 'Không thể tải danh sách sinh viên đủ điều kiện học bổng';
+                this.loading = false;
+                this.candidates = [];
+            }
+        });
     }
 
-    remove(id?: number) {
-        if (!id) return;
-        if (!confirm('⚠️ Bạn có chắc chắn muốn xóa đăng ký học này?\n\nThao tác này không thể hoàn tác!')) return;
-        this.http.delete(`${this.baseUrl}/${id}`, { responseType: 'text' }).subscribe({
-            next: () => this.loadEnrollments(),
-            error: err => console.error('Delete failed', err)
+    exportScholarshipList() {
+        if (this.candidates.length === 0) {
+            alert('Không có dữ liệu để xuất!');
+            return;
+        }
+
+        let params: any = {};
+        if (this.selectedDepartmentId) params.departmentId = this.selectedDepartmentId;
+        if (this.selectedSemester) params.semester = this.selectedSemester;
+
+        this.http.get(`${this.baseUrl}/scholarships/export`, {
+            params,
+            responseType: 'blob'
+        }).subscribe({
+            next: (blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+
+                const departmentName = this.selectedDepartmentId
+                    ? this.departments.find(d => d.id === this.selectedDepartmentId)?.name || 'all'
+                    : 'all';
+                const semesterName = this.selectedSemester || 'all';
+
+                link.download = `hoc_bong_${departmentName}_${semesterName}_${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+                window.URL.revokeObjectURL(url);
+                this.exporting = false;
+            },
+            error: (error) => {
+                console.error('Error exporting scholarship list:', error);
+                alert('Có lỗi xảy ra khi xuất danh sách học bổng!');
+                this.exporting = false;
+            }
         });
+    }
+
+    getAverageGPA(): number {
+        if (this.candidates.length === 0) return 0;
+        const totalGPA = this.candidates.reduce((sum, candidate) => sum + candidate.gpa, 0);
+        return totalGPA / this.candidates.length;
+    }
+
+    getTopGPA(): number {
+        if (this.candidates.length === 0) return 0;
+        return Math.max(...this.candidates.map(c => c.gpa));
+    }
+
+    getCompletionRate(candidate: ScholarshipCandidate): number {
+        if (candidate.totalCredits === 0) return 0;
+        return (candidate.completedCredits / candidate.totalCredits) * 100;
+    }
+
+    hasActiveFilters(): boolean {
+        return !!this.selectedDepartmentId || !!this.selectedSemester;
+    }
+
+    resetFilters() {
+        this.selectedDepartmentId = null;
+        this.selectedSemester = '';
+        this.loadScholarshipCandidates();
     }
 
     logout() {
         if (confirm('🚪 Bạn có chắc chắn muốn đăng xuất?')) {
-            localStorage.removeItem('token');
             localStorage.removeItem('user');
             sessionStorage.clear();
             this.router.navigate(['/login']);

@@ -217,40 +217,28 @@ export class TeacherGradingComponent implements OnInit {
             return;
         }
 
-        // Create CSV content
-        const headers = ['STT', 'Mã SV', 'Họ tên', 'Email', 'Điểm TP1', 'Điểm TP2', 'Điểm thi CK', 'Điểm tổng'];
-        const csvContent = [
-            headers.join(','),
-            ...this.selectedClass.students.map((student, index) => [
-                index + 1,
-                student.studentCode,
-                `"${student.fullName}"`, // Wrap in quotes for names with commas
-                student.email,
-                student.componentScore1 ?? '',
-                student.componentScore2 ?? '',
-                student.finalExamScore ?? '',
-                student.grade ?? ''
-            ].join(','))
-        ].join('\n');
-
-        // Create and download file
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', `bang_diem_${this.selectedClass.courseCode}_${new Date().toISOString().split('T')[0]}.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        this.saveMessage = '📄 Đã xuất bảng điểm thành công!';
-        setTimeout(() => this.saveMessage = '', 3000);
-    }
+        // Call backend API to generate and download CSV
+        this.teacherService.exportClassGrades(this.selectedClass.teachingId).subscribe({
+            next: (blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `bang_diem_${this.selectedClass?.courseCode || 'class'}_${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+                window.URL.revokeObjectURL(url);
+                this.saveMessage = '📄 Đã xuất bảng điểm thành công!';
+                setTimeout(() => this.saveMessage = '', 3000);
+            },
+            error: (error) => {
+                console.error('Error exporting grades:', error);
+                alert('Có lỗi xảy ra khi xuất bảng điểm!');
+            }
+        });
+    }     
 
     logout() {
         if (confirm('🚪 Bạn có chắc chắn muốn đăng xuất?')) {
-            localStorage.removeItem('token');
+
             localStorage.removeItem('user');
             sessionStorage.clear();
             this.router.navigate(['/login']);

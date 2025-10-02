@@ -5,6 +5,10 @@
         </div>
 
         <div class="toolbar">
+            <button class="btn btn-secondary" (click)="reset()">
+                🔄 Reset Form
+            </button>
+            <span class="spacer"></span>
             <div class="search-container">
                 <input class="search-input" [(ngModel)]="searchText"
                     placeholder="🔍 Search by lecturer, course, period, or day..." />
@@ -14,92 +18,102 @@
             </div>
         </div>
 
-        <form class="form-container" (ngSubmit)="save()">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label class="form-label">👨‍🏫 Lecturer</label>
-                    <select class="form-input" [(ngModel)]="form.lecturerId" name="lecturerId" required>
-                        <option value="">-- Chọn Lecturer --</option>
-                        <option *ngFor="let lecturer of lecturers" [value]="lecturer.id">
-                            {{ lecturer.fullName || lecturer.lecturerCode }} - {{ lecturer.lecturerCode }}
-                        </option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">📚 Course</label>
-                    <select class="form-input" [(ngModel)]="form.courseId" name="courseId" required>
-                        <option value="">-- Chọn Course --</option>
-                        <option *ngFor="let course of courses" [value]="course.id">
-                            {{ course.courseCode }} - {{ course.name }}
-                        </option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">🏫 Class</label>
-                    <select class="form-input" [(ngModel)]="form.classId" name="classId" required>
-                        <option value="">-- Chọn Class --</option>
-                        <option *ngFor="let cls of classes" [value]="cls.id">
-                            {{ cls.name }} ({{ cls.year }})
-                        </option>
-                    </select>
-                </div>
-
-
-
-                <div class="form-group">
-                    <label class="form-label">⏰ Period</label>
-                    <input class="form-input" [(ngModel)]="form.period" name="period"
-                        placeholder="Enter teaching period (e.g., 1-3, 4-6)..."
-                        title="Teaching period (e.g., 1-3, 4-6)" />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">📆 Day of Week</label>
-                    <select class="form-input" [(ngModel)]="form.dayOfWeek" name="dayOfWeek">
-                        <option value="">-- Chọn ngày trong tuần --</option>
-                        <option value="Monday">Thứ 2</option>
-                        <option value="Tuesday">Thứ 3</option>
-                        <option value="Wednesday">Thứ 4</option>
-                        <option value="Thursday">Thứ 5</option>
-                        <option value="Friday">Thứ 6</option>
-                        <option value="Saturday">Thứ 7</option>
-                        <option value="Sunday">Chủ nhật</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">🏫 Classroom</label>
-                    <input class="form-input" [(ngModel)]="form.classRoom" name="classRoom"
-                        placeholder="Enter classroom (e.g., A101, B205)..." title="Classroom" />
-                </div>
+        <div class="card">
+            <div class="card-header">
+                <h4>➕ Thêm/Sửa phân công giảng dạy</h4>
             </div>
+            <div class="card-body">
+                <form class="form-container" (ngSubmit)="save()">
+                    <div class="form-grid grid-3">
+                        <div class="form-group">
+                            <label class="form-label">👨‍🏫 Giảng viên</label>
+                            <select class="form-input" [(ngModel)]="form.lecturerId" name="lecturerId" required>
+                                <option value="">-- Chọn giảng viên --</option>
+                                <option *ngFor="let lecturer of lecturers" [value]="lecturer.id">
+                                    {{ lecturer.fullName || lecturer.lecturerCode }} - {{ lecturer.lecturerCode }}
+                                </option>
+                            </select>
+                        </div>
 
-            <div class="form-actions" style="display: flex; gap: 10px; margin-top: 15px;">
-                <button type="submit" class="btn btn-primary" style="flex: 1;">
-                    {{ editingId ? '💾 Update Assignment' : '➕ Add New Assignment' }}
-                </button>
-                <button type="button" class="btn btn-secondary" (click)="reset()" style="flex: 0 0 auto;">
-                    🔄 Reset
-                </button>
+                        <div class="form-group">
+                            <label class="form-label">📚 Môn học</label>
+                            <select class="form-input" [(ngModel)]="form.courseId" name="courseId" required>
+                                <option value="">-- Chọn môn học --</option>
+                                <option *ngFor="let course of courses" [value]="course.id">
+                                    {{ course.courseCode }} - {{ course.name }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">🏫 Lớp học</label>
+                            <select class="form-input" [(ngModel)]="form.classId" name="classId" required>
+                                <option value="">-- Chọn lớp học --</option>
+                                <option *ngFor="let cls of classes" [value]="cls.id">
+                                    {{ cls.name }} ({{ cls.year }})
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">⏰ Tiết học</label>
+                            <input class="form-input" [(ngModel)]="form.period" name="period"
+                                placeholder="Nhập tiết học (ví dụ: 1-3, 4-6)..."
+                                title="Tiết học (ví dụ: 1-3, 4-6)" />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">📆 Ngày trong tuần</label>
+                            <select class="form-input" [(ngModel)]="form.dayOfWeek" name="dayOfWeek">
+                                <option value="">-- Chọn ngày trong tuần --</option>
+                                <option value="Monday">Thứ 2</option>
+                                <option value="Tuesday">Thứ 3</option>
+                                <option value="Wednesday">Thứ 4</option>
+                                <option value="Thursday">Thứ 5</option>
+                                <option value="Friday">Thứ 6</option>
+                                <option value="Saturday">Thứ 7</option>
+                                <option value="Sunday">Chủ nhật</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">🏫 Phòng học</label>
+                            <input class="form-input" [(ngModel)]="form.classRoom" name="classRoom"
+                                placeholder="Nhập phòng học (ví dụ: A101, B205)..." title="Phòng học" />
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            {{ editingId ? '💾 Cập nhật phân công' : '➕ Thêm phân công mới' }}
+                        </button>
+                        <button type="button" class="btn btn-secondary" (click)="reset()">
+                            🔄 Reset
+                        </button>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
 
-        <div class="data-container">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>👨‍🏫 Lecturer</th>
-                        <th>📚 Course</th>
-                        <th>🏫 Class</th>
-                        <th>⏰ Period</th>
-                        <th>📆 Day of Week</th>
-                        <th>🏫 Classroom</th>
-                        <th>⚙️ Actions</th>
-                    </tr>
-                </thead>
+        <div class="card">
+            <div class="card-header">
+                <h4>📋 Danh sách phân công giảng dạy</h4>
+            </div>
+            <div class="card-body">
+                <div class="data-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>👨‍🏫 Giảng viên</th>
+                                <th>📚 Môn học</th>
+                                <th>🏫 Lớp học</th>
+                                <th>⏰ Tiết học</th>
+                                <th>📆 Ngày trong tuần</th>
+                                <th>🏫 Phòng học</th>
+                                <th>⚙️ Thao tác</th>
+                            </tr>
+                        </thead>
                 <tbody>
                     <tr *ngFor="let t of filteredTeachings; let i = index" (click)="selectForEdit(t)">
                         <td><strong>{{ i + 1 }}</strong></td>
@@ -109,26 +123,28 @@
                         <td>{{ t.period || 'N/A' }}</td>
                         <td>{{ t.dayOfWeek || 'N/A' }}</td>
                         <td>{{ t.classRoom || 'N/A' }}</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button type="button" class="btn btn-sm btn-success"
-                                    (click)="$event.stopPropagation(); selectForEdit(t)">
-                                    ✏️ Edit
-                                </button>
-                                <button type="button" class="btn btn-sm btn-danger"
-                                    (click)="$event.stopPropagation(); remove(t.id)">
-                                    🗑️ Delete
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr *ngIf="teachings.length === 0">
-                        <td colspan="8" class="no-data">
-                            📭 No teaching assignments found
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                            <td>
+                                <div class="action-buttons">
+                                    <button type="button" class="btn btn-sm btn-success"
+                                        (click)="$event.stopPropagation(); selectForEdit(t)">
+                                        ✏️ Sửa
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-danger"
+                                        (click)="$event.stopPropagation(); remove(t.id)">
+                                        🗑️ Xóa
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr *ngIf="teachings.length === 0">
+                            <td colspan="8" class="no-data">
+                                📭 Không có phân công giảng dạy nào
+                            </td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </app-layout>
