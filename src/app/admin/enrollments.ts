@@ -27,7 +27,6 @@ interface ScholarshipCandidate {
     totalCredits: number;
     completedCredits: number;
     semester: string;
-    rank: number;
 }
 
 @Component({
@@ -50,7 +49,6 @@ export class AdminEnrollmentsComponent implements OnInit {
     error = '';
     searchPerformed = false;
     userName = 'Admin';
-    viewMode: 'table' | 'cards' = 'table';
 
     // Menu items for admin sidebar
     menuItems: MenuItem[] = [
@@ -206,6 +204,14 @@ export class AdminEnrollmentsComponent implements OnInit {
 
     hasActiveFilters(): boolean {
         return !!this.selectedDepartmentId || !!this.selectedSemester;
+    }
+
+    getTableTitle(): string {
+        if (this.selectedSemester) {
+            return 'Danh sách sinh viên đủ điều kiện học bổng';
+        } else {
+            return 'Danh sách Sinh viên xuất sắc';
+        }
     }
 
     resetFilters() {

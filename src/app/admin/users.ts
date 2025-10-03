@@ -58,7 +58,7 @@ export class AdminUsersComponent {
     form: User = { username: '', password: '', fullName: '', email: '', roleId: null, departmentId: null, gender: 'MALE', dateOfBirth: '', address: '' };
     editingId: number | null = null;
     userName = 'Quản trị viên';
-    
+
     // Menu items for admin sidebar
     menuItems: MenuItem[] = [
         { icon: '👥', label: 'Sinh viên', route: '/admin/students' },
@@ -66,7 +66,7 @@ export class AdminUsersComponent {
         { icon: '🏢', label: 'Lớp học', route: '/admin/classes' },
         { icon: '👨‍🏫', label: 'Giảng viên', route: '/admin/lecturers' },
         { icon: '📅', label: 'Học kỳ', route: '/admin/semesters' },
-        { icon: '📝', label: 'Thành tích', route: '/admin/enrollments' },
+        { icon: '🏆', label: 'Học bổng', route: '/admin/enrollments' },
         { icon: '👤', label: 'Người dùng', route: '/admin/users' },
         { icon: '🏛️', label: 'Khoa', route: '/admin/departments' },
         { icon: '📖', label: 'Phân công', route: '/admin/teachings' },
@@ -166,12 +166,12 @@ export class AdminUsersComponent {
 
         if (this.editingId) {
             this.http.put(`${this.baseUrl}/${this.editingId}`, payload, { responseType: 'text' }).subscribe({
-            next: () => { this.loadUsers(); this.reset(); },
+                next: () => { this.loadUsers(); this.reset(); },
                 error: err => console.error('Update failed', err)
             });
         } else {
             this.http.post(this.baseUrl, payload, { responseType: 'text' }).subscribe({
-            next: () => { this.loadUsers(); this.reset(); },
+                next: () => { this.loadUsers(); this.reset(); },
                 error: err => console.error('Create failed', err)
             });
         }
@@ -192,7 +192,7 @@ export class AdminUsersComponent {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             sessionStorage.clear();
-            
+
             // Redirect to login page
             this.router.navigate(['/login']);
         }

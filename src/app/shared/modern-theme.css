@@ -1113,21 +1113,6 @@ body {
   color: white;
 }
 
-.classification-average-fair .classification-badge {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  color: white;
-}
-
-.classification-average .classification-badge {
-  background: linear-gradient(135deg, #eab308, #ca8a04);
-  color: white;
-}
-
-.classification-weak-average .classification-badge {
-  background: linear-gradient(135deg, #f97316, #ea580c);
-  color: white;
-}
-
 .classification-weak .classification-badge {
   background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
@@ -2875,62 +2860,6 @@ select {
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-.action-buttons {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.action-btn {
-  padding: 12px 20px;
-  border: none;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
-  flex: 1;
-  min-width: 120px;
-  justify-content: center;
-}
-
-.action-btn.primary {
-  background: linear-gradient(135deg, #3498db, #2980b9);
-  color: white;
-}
-
-.action-btn.success {
-  background: linear-gradient(135deg, #27ae60, #229954);
-  color: white;
-}
-
-.action-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.action-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.spinning {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 /* Loading Section */
 .loading-section {
   text-align: center;
@@ -3038,33 +2967,6 @@ select {
   font-size: 1.5rem;
 }
 
-.results-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.view-toggle {
-  padding: 10px 20px;
-  border: 2px solid #dee2e6;
-  background: white;
-  border-radius: 25px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  color: #6c757d;
-}
-
-.view-toggle.active {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  border-color: #667eea;
-}
-
-.view-toggle:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-}
-
 /* Table View */
 .table-container {
   overflow-x: auto;
@@ -3095,21 +2997,6 @@ select {
   background: linear-gradient(135deg, #f8f9fa, #e9ecef);
 }
 
-.scholarship-table tr.top-1 {
-  background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-  border-left: 5px solid #ffd700;
-}
-
-.scholarship-table tr.top-3 {
-  background: linear-gradient(135deg, #d1ecf1, #b3e5fc);
-  border-left: 5px solid #17a2b8;
-}
-
-.scholarship-table tr.top-10 {
-  background: linear-gradient(135deg, #d4edda, #c3e6cb);
-  border-left: 5px solid #28a745;
-}
-
 /* Rank Cell */
 .rank-cell {
   text-align: center;
@@ -3132,16 +3019,6 @@ select {
 .rank-badge.gold {
   background: linear-gradient(135deg, #ffd700, #ffb347);
   box-shadow: 0 3px 15px rgba(255, 215, 0, 0.4);
-}
-
-.rank-badge.silver {
-  background: linear-gradient(135deg, #c0c0c0, #a8a8a8);
-  box-shadow: 0 3px 15px rgba(192, 192, 192, 0.4);
-}
-
-.rank-badge.bronze {
-  background: linear-gradient(135deg, #cd7f32, #b8860b);
-  box-shadow: 0 3px 15px rgba(205, 127, 50, 0.4);
 }
 
 .rank-number {
@@ -3195,14 +3072,6 @@ select {
   background: linear-gradient(135deg, #27ae60, #229954);
 }
 
-.gpa-badge.good {
-  background: linear-gradient(135deg, #f39c12, #e67e22);
-}
-
-.gpa-badge.average {
-  background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-}
-
 /* Completion Cell */
 .completion-info {
   min-width: 150px;
@@ -3228,84 +3097,6 @@ select {
   font-size: 0.85rem;
   color: #6c757d;
   font-weight: 600;
-}
-
-/* Cards View */
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 25px;
-  padding: 30px;
-}
-
-.candidate-card {
-  background: white;
-  border-radius: 20px;
-  padding: 25px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-}
-
-.candidate-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-}
-
-.candidate-card.top-1 {
-  border-color: #ffd700;
-  background: linear-gradient(135deg, #fff9e6, #fff3cd);
-}
-
-.candidate-card.top-3 {
-  border-color: #17a2b8;
-  background: linear-gradient(135deg, #e6f7ff, #d1ecf1);
-}
-
-.candidate-card.top-10 {
-  border-color: #28a745;
-  background: linear-gradient(135deg, #e6f7e6, #d4edda);
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.student-avatar {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.card-body h4 {
-  margin: 0 0 10px 0;
-  color: #2c3e50;
-  font-size: 1.3rem;
-}
-
-.student-details {
-  color: #6c757d;
-  margin-bottom: 15px;
-}
-
-.gpa-section,
-.credits-section {
-  margin-bottom: 15px;
-}
-
-.credits-info {
-  font-size: 0.9rem;
-  color: #6c757d;
 }
 
 /* No Results */
@@ -3349,7 +3140,7 @@ select {
   box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
 }
 
-/* Responsive Design */
+/* Responsive */
 @media (max-width: 768px) {
   .scholarship-container {
     padding: 15px;
@@ -3378,18 +3169,9 @@ select {
     text-align: center;
   }
 
-  .action-buttons {
-    flex-direction: column;
-  }
-
   .results-header {
     flex-direction: column;
     text-align: center;
-  }
-
-  .cards-grid {
-    grid-template-columns: 1fr;
-    padding: 20px;
   }
 
   .scholarship-table {

@@ -106,7 +106,7 @@ export class AdminPaymentsComponent implements OnInit {
         { icon: '🏢', label: 'Lớp học', route: '/admin/classes' },
         { icon: '👨‍🏫', label: 'Giảng viên', route: '/admin/lecturers' },
         { icon: '📅', label: 'Học kỳ', route: '/admin/semesters' },
-        { icon: '📝', label: 'Thành tích', route: '/admin/enrollments' },
+        { icon: '🏆', label: 'Học bổng', route: '/admin/enrollments' },
         { icon: '👤', label: 'Người dùng', route: '/admin/users' },
         { icon: '🏛️', label: 'Khoa', route: '/admin/departments' },
         { icon: '📖', label: 'Phân công', route: '/admin/teachings' },
@@ -127,25 +127,25 @@ export class AdminPaymentsComponent implements OnInit {
     }
 
     // Service methods (merged from admin-payment.service.ts)
-    
+
     /**
      * Lấy tất cả payments với filtering
      */
     getAllPayments(status?: string, semester?: string): Observable<Payment[]> {
         let url = this.baseUrl;
         const params: string[] = [];
-        
+
         if (status) {
             params.push(`status=${status}`);
         }
         if (semester) {
             params.push(`semester=${semester}`);
         }
-        
+
         if (params.length > 0) {
             url += '?' + params.join('&');
         }
-        
+
         return this.http.get<Payment[]>(url);
     }
 
@@ -246,17 +246,17 @@ export class AdminPaymentsComponent implements OnInit {
         this.filteredPayments = this.payments.filter(payment => {
             const searchTerm = this.searchTerm?.toLowerCase() || '';
             const studentCode = payment.studentCode?.toLowerCase() || '';
-            
-            const matchesSearch = searchTerm === '' || 
+
+            const matchesSearch = searchTerm === '' ||
                 studentCode.includes(searchTerm) ||
                 payment.id.toString().includes(searchTerm);
-            
-            const matchesStatus = !this.statusFilter || 
+
+            const matchesStatus = !this.statusFilter ||
                 payment.status === this.statusFilter;
-                
-            const matchesSemester = !this.semesterFilter || 
+
+            const matchesSemester = !this.semesterFilter ||
                 payment.semesterName === this.semesterFilter;
-            
+
             return matchesSearch && matchesStatus && matchesSemester;
         });
     }

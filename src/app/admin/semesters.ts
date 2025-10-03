@@ -26,7 +26,7 @@ export class AdminSemestersComponent {
   form: SemesterEntity = { semester: '' };
   editingId: number | null = null;
   userName = 'Quản trị viên';
-  
+
   // Menu items for admin sidebar
   menuItems: MenuItem[] = [
     { icon: '👥', label: 'Sinh viên', route: '/admin/students' },
@@ -34,7 +34,7 @@ export class AdminSemestersComponent {
     { icon: '🏢', label: 'Lớp học', route: '/admin/classes' },
     { icon: '👨‍🏫', label: 'Giảng viên', route: '/admin/lecturers' },
     { icon: '📅', label: 'Học kỳ', route: '/admin/semesters' },
-    { icon: '📝', label: 'Thành tích', route: '/admin/enrollments' },
+    { icon: '🏆', label: 'Học bổng', route: '/admin/enrollments' },
     { icon: '👤', label: 'Người dùng', route: '/admin/users' },
     { icon: '🏛️', label: 'Khoa', route: '/admin/departments' },
     { icon: '📖', label: 'Phân công', route: '/admin/teachings' },

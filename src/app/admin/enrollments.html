@@ -5,7 +5,7 @@
             <div class="hero-content">
                 <div class="hero-icon">🎓</div>
                 <h1 class="hero-title">Quản lý Học bổng</h1>
-                <p class="hero-subtitle">Danh sách sinh viên đủ điều kiện học bổng (GPA >= 3.6)</p>
+                <p class="hero-subtitle">{{getTableTitle()}} (GPA >= 3.6)</p>
             </div>
             <div class="hero-stats" *ngIf="candidates.length > 0">
                 <div class="stat-card">
@@ -26,7 +26,7 @@
         <!-- Smart Filters -->
         <div class="smart-filters">
             <div class="filters-header">
-                <h3>🔍 Bộ lọc sinh viên đủ điều kiện học bổng (GPA >= 3.6)</h3>
+                <h3>🔍 Bộ lọc {{getTableTitle().toLowerCase()}} (GPA >= 3.6)</h3>
                 <div class="header-actions">
                     <button class="reset-btn" (click)="resetFilters()" *ngIf="hasActiveFilters()">
                         <i class="icon">🔄</i> Đặt lại
@@ -45,6 +45,7 @@
                     <div class="filter-content">
                         <label>Khoa</label>
                         <select [(ngModel)]="selectedDepartmentId" (change)="onFilterChange()" class="modern-select">
+                            <option value="" disabled selected hidden>-- Chọn khoa --</option>
                             <option value="">Tất cả khoa</option>
                             <option *ngFor="let dept of departments" [value]="dept.id">{{dept.name}}</option>
                         </select>
@@ -56,8 +57,10 @@
                     <div class="filter-content">
                         <label>Học kỳ</label>
                         <select [(ngModel)]="selectedSemester" (change)="onFilterChange()" class="modern-select">
+                            <option value="" disabled selected hidden></option>
                             <option value="">Tất cả học kỳ</option>
-                            <option *ngFor="let semester of semesters" [value]="semester.semester">{{semester.semester}}
+                            <option *ngFor="let semester of semesters" [value]="semester.semester"> Kỳ
+                                {{semester.semester}}
                             </option>
                         </select>
                     </div>
@@ -72,7 +75,7 @@
                 <div class="loading-circle"></div>
                 <div class="loading-circle"></div>
             </div>
-            <p class="loading-text">Đang tìm sinh viên đủ điều kiện học bổng (GPA >= 3.6)...</p>
+            <p class="loading-text">Đang tìm {{getTableTitle().toLowerCase()}} (GPA >= 3.6)...</p>
         </div>
 
         <!-- Error -->
@@ -86,24 +89,16 @@
         <!-- Results -->
         <div *ngIf="!loading && candidates.length > 0" class="results-section">
             <div class="results-header">
-                <h3>🎯 Sinh viên đủ điều kiện học bổng ({{candidates.length}} sinh viên)</h3>
-                <div class="results-actions">
-                    <button class="view-toggle" [class.active]="viewMode === 'table'" (click)="viewMode = 'table'">
-                        📋 Bảng
-                    </button>
-                    <button class="view-toggle" [class.active]="viewMode === 'cards'" (click)="viewMode = 'cards'">
-                        🎴 Thẻ
-                    </button>
-                </div>
+                <h3>🎯 {{getTableTitle()}} ({{candidates.length}} sinh viên)</h3>
             </div>
 
             <!-- Table View -->
-            <div *ngIf="viewMode === 'table'" class="table-view">
+            <div class="table-view">
                 <div class="table-container">
                     <table class="scholarship-table">
                         <thead>
                             <tr>
-                                <th>Hạng</th>
+                                <th>STT</th>
                                 <th>Sinh viên</th>
                                 <th>Lớp</th>
                                 <th>Khoa</th>
@@ -113,26 +108,27 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let candidate of candidates" [class.top-1]="candidate.rank === 1"
-                                [class.top-3]="candidate.rank <= 3 && candidate.rank > 1"
-                                [class.top-10]="candidate.rank > 3 && candidate.rank <= 10">
+                            <tr *ngFor="let candidate of candidates; let i = index" class="top-1">
                                 <td class="rank-cell">
-                                    <div class="rank-badge" [class.gold]="candidate.rank === 1"
-                                        [class.silver]="candidate.rank === 2" [class.bronze]="candidate.rank === 3">
-                                        <span class="rank-number">{{candidate.rank}}</span>
-                                        <span class="rank-icon" *ngIf="candidate.rank <= 3">
-                                            {{candidate.rank === 1 ? '🥇' : candidate.rank === 2 ? '🥈' : '🥉'}}
-                                        </span>
+                                    <div class="rank-badge gold">
+                                        <!-- Số thứ tự -->
+                                        <span class="rank-number">{{ i + 1 }}</span>
+
+                                        <!-- Icon vàng -->
+                                        <span class="rank-icon">🥇</span>
                                     </div>
                                 </td>
+
                                 <td class="student-cell">
                                     <div class="student-info">
                                         <div class="student-name">{{candidate.fullName}}</div>
                                         <div class="student-code">{{candidate.studentCode}}</div>
                                     </div>
                                 </td>
+
                                 <td class="class-cell">{{candidate.className}}</td>
                                 <td class="department-cell">{{candidate.departmentName}}</td>
+
                                 <td class="gpa-cell">
                                     <div class="gpa-badge" [class.excellent]="candidate.gpa >= 3.6"
                                         [class.good]="candidate.gpa >= 3.2 && candidate.gpa < 3.6"
@@ -140,7 +136,9 @@
                                         {{candidate.gpa | number:'1.2-2'}}
                                     </div>
                                 </td>
+
                                 <td class="credits-cell">{{candidate.totalCredits}}</td>
+
                                 <td class="completion-cell">
                                     <div class="completion-info">
                                         <div class="progress-bar">
@@ -154,50 +152,9 @@
                                     </div>
                                 </td>
                             </tr>
+
                         </tbody>
                     </table>
-                </div>
-            </div>
-
-            <!-- Cards View -->
-            <div *ngIf="viewMode === 'cards'" class="cards-view">
-                <div class="cards-grid">
-                    <div *ngFor="let candidate of candidates" class="candidate-card"
-                        [class.top-1]="candidate.rank === 1" [class.top-3]="candidate.rank <= 3 && candidate.rank > 1"
-                        [class.top-10]="candidate.rank > 3 && candidate.rank <= 10">
-                        <div class="card-header">
-                            <div class="rank-badge" [class.gold]="candidate.rank === 1"
-                                [class.silver]="candidate.rank === 2" [class.bronze]="candidate.rank === 3">
-                                {{candidate.rank}}
-                            </div>
-                            <div class="student-avatar">
-                                {{candidate.fullName.charAt(0)}}
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <h4 class="student-name">{{candidate.fullName}}</h4>
-                            <p class="student-details">
-                                <span class="student-code">{{candidate.studentCode}}</span> •
-                                <span class="class-name">{{candidate.className}}</span>
-                            </p>
-                            <div class="gpa-section">
-                                <div class="gpa-badge" [class.excellent]="candidate.gpa >= 3.6"
-                                    [class.good]="candidate.gpa >= 3.2 && candidate.gpa < 3.6"
-                                    [class.average]="candidate.gpa < 3.2">
-                                    GPA: {{candidate.gpa | number:'1.2-2'}}
-                                </div>
-                            </div>
-                            <div class="credits-section">
-                                <div class="credits-info">
-                                    <span>Tín chỉ: {{candidate.completedCredits}}/{{candidate.totalCredits}}</span>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" [style.width.%]="getCompletionRate(candidate)">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -205,8 +162,8 @@
         <!-- No Results -->
         <div *ngIf="!loading && !error && candidates.length === 0 && searchPerformed" class="no-results">
             <div class="no-results-icon">🎓</div>
-            <h3>Không có sinh viên đủ điều kiện</h3>
-            <p>Không có sinh viên nào có GPA >= 3.6 trong kỳ học và khoa được chọn.</p>
+            <h3>Không có kết quả</h3>
+            <p>Không có sinh viên nào đạt yêu cầu GPA >= 3.6 trong điều kiện được chọn.</p>
             <button class="search-again-btn" (click)="resetFilters()">🔄 Tìm kiếm lại</button>
         </div>
     </div>
