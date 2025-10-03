@@ -42,8 +42,10 @@ export class UserRegistrationComponent implements OnInit {
     ngOnInit() {
         this.userName = 'Sinh viên'; // Set default or get from auth service
         this.loadSemesters();
-        this.loadCompletedCourses().then(() => {
-            this.loadAvailableCourses();
+        this.loadEnrolledCourses().then(() => {
+            this.loadCompletedCourses().then(() => {
+                this.loadAvailableCourses();
+            });
         });
     }
 
@@ -59,13 +61,37 @@ export class UserRegistrationComponent implements OnInit {
             },
             error: (error) => {
                 console.error('Error loading semesters:', error);
-                // Fallback to hardcoded semesters
-                this.availableSemesters = [
-                    { id: 1, semester: '2024-2', displayName: 'Học kỳ 2 (2024-2025)' },
-                    { id: 2, semester: '2024-1', displayName: 'Học kỳ 1 (2024-2025)' },
-                    { id: 3, semester: '2024-3', displayName: 'Học kỳ hè (2024-2025)' }
-                ];
             }
+        });
+    }
+
+    loadEnrolledCourses(): Promise<void> {
+        return new Promise((resolve) => {
+            // Lấy danh sách môn đã đăng ký từ bảng điểm (chỉ lấy môn đang học)
+            this.userService.getStudentGrades(this.selectedSemester).subscribe({
+                next: (grades) => {
+                    console.log('Student grades loaded for enrolled courses:', grades);
+                    // Lọc các môn đang học (không có điểm cuối kỳ)
+                    this.enrolledCourses = grades.gradeItems
+                        .filter(item => item.status === 'Đang học')
+                        .map(item => ({
+                            courseId: item.courseId,
+                            courseCode: item.courseCode,
+                            courseName: item.courseName,
+                            credit: item.credit,
+                            canRegister: false,
+                            canUnregister: true, // Có thể hủy đăng ký
+                            reason: 'Đang học',
+                            semester: item.semester
+                        }));
+                    resolve();
+                },
+                error: (error) => {
+                    console.error('Error loading enrolled courses:', error);
+                    this.enrolledCourses = [];
+                    resolve();
+                }
+            });
         });
     }
 
@@ -104,8 +130,8 @@ export class UserRegistrationComponent implements OnInit {
         this.userService.getAvailableCourses(this.selectedSemester).subscribe({
             next: (courses) => {
                 console.log('Available courses loaded:', courses);
-                // Lọc bỏ các môn đã hoàn thành
-                this.availableCourses = courses.filter(course => 
+                // Lọc bỏ các môn đã hoàn thành và đang học
+                this.availableCourses = courses.filter(course =>
                     !this.isCompleted(course.courseId) && !this.isEnrolled(course.courseId)
                 );
                 this.loading = false;
@@ -136,8 +162,10 @@ export class UserRegistrationComponent implements OnInit {
                 this.successMessage = response.message || 'Đăng ký môn học thành công!';
                 // Reload data after successful registration
                 setTimeout(() => {
-                    this.loadCompletedCourses().then(() => {
-                        this.loadAvailableCourses();
+                    this.loadEnrolledCourses().then(() => {
+                        this.loadCompletedCourses().then(() => {
+                            this.loadAvailableCourses();
+                        });
                     });
                     this.successMessage = '';
                 }, 1500); // Wait 1.5 seconds to show success message
@@ -170,8 +198,10 @@ export class UserRegistrationComponent implements OnInit {
                 this.successMessage = response.message || 'Hủy đăng ký môn học thành công!';
                 // Reload data after successful unregistration
                 setTimeout(() => {
-                    this.loadCompletedCourses().then(() => {
-                        this.loadAvailableCourses();
+                    this.loadEnrolledCourses().then(() => {
+                        this.loadCompletedCourses().then(() => {
+                            this.loadAvailableCourses();
+                        });
                     });
                     this.successMessage = '';
                 }, 1500); // Wait 1.5 seconds to show success message
@@ -221,6 +251,10 @@ export class UserRegistrationComponent implements OnInit {
 
     onSemesterChange() {
         console.log('Semester changed to:', this.selectedSemester);
-        this.loadAvailableCourses();
+        this.loadEnrolledCourses().then(() => {
+            this.loadCompletedCourses().then(() => {
+                this.loadAvailableCourses();
+            });
+        });
     }
 }
