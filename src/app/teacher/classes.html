@@ -43,7 +43,6 @@
         <div class="event" *ngFor="let e of events" [style.gridColumn]="(e.dayIndex + 1)"
           [style.gridRow]="(e.start + 1) + ' / ' + (e.end + 1)" [style.borderLeftColor]="e.color">
           <div class="event-title">{{ e.title }}</div>
-          <div class="event-subtitle" *ngIf="e.subtitle">Lớp: {{ e.subtitle }}</div>
           <div class="event-meta">
             <span>Tiết {{ e.start }}-{{ e.end - 1 }}</span>
             <span *ngIf="e.room">• Phòng: {{ e.room }}</span>

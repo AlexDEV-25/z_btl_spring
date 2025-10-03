@@ -2,15 +2,22 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface ScheduleTime {
+    period: string;
+    dayOfWeek: string;
+    classroom: string;
+}
+
 export interface TeacherScheduleInfo {
     teachingId: number;
     courseId: number;
     courseCode: string;
     courseName: string;
     credit: number;
-    period: string;
-    dayOfWeek: string;
-    classroom: string;
+    period: string; // For backward compatibility, contains combined schedule info
+    dayOfWeek: string; // For backward compatibility
+    classroom: string; // For backward compatibility
+    periods: ScheduleTime[]; // New field to store all schedule times
     students: StudentInfo[];
 }
 
@@ -90,7 +97,39 @@ export class TeacherService {
      */
     getTeacherClasses(semester?: string): Observable<TeacherScheduleInfo[]> {
         const url = semester ? `${this.baseUrl}/classes?semester=${semester}` : `${this.baseUrl}/classes`;
-        return this.http.get<TeacherScheduleInfo[]>(url);
+        return new Observable(observer => {
+            this.http.get<TeacherScheduleInfo[]>(url).subscribe({
+                next: (classes) => {
+                    // Use a Map to store unique courses by courseId
+                    const uniqueCourses = new Map<number, TeacherScheduleInfo>();
+                    
+                    classes.forEach(cls => {
+                        if (!uniqueCourses.has(cls.courseId)) {
+const courseSchedules = classes.filter(c => c.courseId === cls.courseId);
+                            uniqueCourses.set(cls.courseId, {
+                                ...cls,
+                                // For backward compatibility
+                                period: courseSchedules
+                                    .map(c => `${c.dayOfWeek} (${c.period})`)
+                                    .join(', '),
+                                dayOfWeek: courseSchedules[0]?.dayOfWeek || '',
+                                classroom: courseSchedules[0]?.classroom || '',
+                                // Store all schedule times
+                                periods: courseSchedules.map(s => ({
+                                    period: s.period,
+                                    dayOfWeek: s.dayOfWeek,
+                                    classroom: s.classroom
+                                }))
+                            });
+                        }
+                    });
+                    
+                    observer.next(Array.from(uniqueCourses.values()));
+                    observer.complete();
+                },
+                error: (err) => observer.error(err)
+            });
+        });
     }
 
     /**

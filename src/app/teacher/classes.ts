@@ -44,7 +44,6 @@ export class TeacherClassesComponent implements OnInit {
         start: number;
         end: number;
         title: string;
-        subtitle?: string;
         room?: string;
         teacher?: string;
         color: string;
@@ -110,7 +109,6 @@ export class TeacherClassesComponent implements OnInit {
                 start,
                 end: end + 1, // CSS grid end is exclusive
                 title: `${c.courseCode} - ${c.courseName}`,
-                subtitle: className,
                 room: c.classroom || '',
                 teacher: '',
                 color
