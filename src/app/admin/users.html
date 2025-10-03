@@ -49,6 +49,12 @@
             </div>
 
             <div class="form-group">
+              <label class="form-label">📱 Số điện thoại</label>
+              <input class="form-input" [(ngModel)]="form.phone" name="phone" type="tel"
+                placeholder="Nhập số điện thoại..." />
+            </div>
+
+            <div class="form-group">
               <label class="form-label">👥 Vai trò</label>
               <select class="form-input" [(ngModel)]="form.roleId" name="roleId" required>
                 <option value="">-- Chọn vai trò --</option>
@@ -105,17 +111,19 @@
       </div>
       <div class="card-body">
         <div class="table-responsive">
-          <table class="data-table">
+          <table class="data-table users-table">
             <thead>
               <tr>
                 <th>#</th>
                 <th>👤 Tên đăng nhập</th>
                 <th>📝 Họ tên</th>
                 <th>📧 Email</th>
+                <th>📱 SĐT</th>
                 <th>🎂 Ngày sinh</th>
                 <th>⚧ Giới tính</th>
                 <th>🏠 Địa chỉ</th>
                 <th>🎭 Vai trò</th>
+                <th>🏢 Khoa</th>
                 <th>⚙️ Thao tác</th>
               </tr>
             </thead>
@@ -125,10 +133,12 @@
                 <td>{{ u.username }}</td>
                 <td>{{ u.fullName }}</td>
                 <td>{{ u.email }}</td>
+                <td>{{ u.phone || '—' }}</td>
                 <td>{{ u.dateOfBirth || '—' }}</td>
                 <td>{{ u.gender || 'OTHER' }}</td>
                 <td>{{ u.address || '—' }}</td>
                 <td>{{ getRoleName(u.roleId) }}</td>
+                <td>{{ getDepartmentName(u.departmentId || null) }}</td>
                 <td>
                   <div class="action-buttons">
                     <button type="button" class="btn btn-sm btn-success"
@@ -143,7 +153,7 @@
                 </td>
               </tr>
               <tr *ngIf="users.length === 0">
-                <td colspan="9" class="no-data">
+                <td colspan="11" class="no-data">
                   💭 No users found
                 </td>
               </tr>

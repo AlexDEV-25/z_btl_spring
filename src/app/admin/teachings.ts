@@ -12,7 +12,6 @@ interface Teaching {
     courseId: number | null;
     period?: string;
     dayOfWeek?: string;
-    classId?: number | null;
     classRoom?: string;
 }
 
@@ -30,11 +29,6 @@ interface Course {
     name: string;
 }
 
-interface ClassEntity {
-    id: number;
-    name: string;
-    year: string;
-}
 
 @Component({
     selector: 'admin-teachings',
@@ -47,14 +41,12 @@ export class AdminTeachingsComponent {
     baseUrl: string = 'http://localhost:8080/api/teachings';
     lecturersUrl: string = 'http://localhost:8080/api/lecturers';
     coursesUrl: string = 'http://localhost:8080/api/courses';
-    classesUrl: string = 'http://localhost:8080/api/classes';
     teachings: Teaching[] = [];
     filteredTeachings: Teaching[] = [];
     lecturers: Lecturer[] = [];
     courses: Course[] = [];
-    classes: ClassEntity[] = [];
     searchText: string = '';
-    form: Teaching = { lecturerId: null, courseId: null, classId: null, period: '', dayOfWeek: '', classRoom: '' };
+    form: Teaching = { lecturerId: null, courseId: null, period: '', dayOfWeek: '', classRoom: '' };
     editingId: number | null = null;
     userName = 'Quản trị viên';
 
@@ -76,7 +68,6 @@ export class AdminTeachingsComponent {
         this.loadTeachings();
         this.loadLecturers();
         this.loadCourses();
-        this.loadClasses();
     }
 
     loadTeachings() {
@@ -116,13 +107,6 @@ export class AdminTeachingsComponent {
         });
     }
 
-    loadClasses() {
-        this.http.get<ClassEntity[]>(this.classesUrl).subscribe({
-            next: data => this.classes = data || [],
-            error: err => console.error('Load classes failed', err)
-        });
-    }
-
     getLecturerName(lecturerId: number | null): string {
         if (!lecturerId) return 'N/A';
         const lecturer = this.lecturers.find(l => l.id === lecturerId);
@@ -139,14 +123,8 @@ export class AdminTeachingsComponent {
         return course ? `${course.courseCode} - ${course.name}` : 'Unknown';
     }
 
-    getClassName(classId: number | null): string {
-        if (!classId) return 'N/A';
-        const cls = this.classes.find(c => c.id === classId);
-        return cls ? `${cls.name} (${cls.year})` : 'Unknown';
-    }
-
     reset() {
-        this.form = { lecturerId: null, courseId: null, classId: null, period: '', dayOfWeek: '', classRoom: '' };
+        this.form = { lecturerId: null, courseId: null, period: '', dayOfWeek: '', classRoom: '' };
         this.editingId = null;
     }
 
@@ -156,7 +134,6 @@ export class AdminTeachingsComponent {
             id: t.id,
             lecturerId: t.lecturerId ?? null,
             courseId: t.courseId ?? null,
-            classId: t.classId ?? null,
             period: t.period || '',
             dayOfWeek: t.dayOfWeek || '',
             classRoom: t.classRoom || ''
@@ -167,12 +144,11 @@ export class AdminTeachingsComponent {
         const payload: Teaching = {
             lecturerId: this.form.lecturerId ? Number(this.form.lecturerId) : null,
             courseId: this.form.courseId ? Number(this.form.courseId) : null,
-            classId: this.form.classId ? Number(this.form.classId) : null,
             period: (this.form.period || '').trim(),
             dayOfWeek: (this.form.dayOfWeek || '').trim(),
             classRoom: (this.form.classRoom || '').trim()
         };
-        if (!payload.lecturerId || !payload.courseId || !payload.classId) return;
+        if (!payload.lecturerId || !payload.courseId) return;
 
         if (this.editingId) {
             this.http.put(`${this.baseUrl}/${this.editingId}`, payload, { responseType: 'text' }).subscribe({

@@ -55,7 +55,7 @@ export class AdminUsersComponent {
         { key: 'OTHER', label: 'Khác' }
     ];
     searchText: string = '';
-    form: User = { username: '', password: '', fullName: '', email: '', roleId: null, departmentId: null, gender: 'MALE', dateOfBirth: '', address: '' };
+    form: User = { username: '', password: '', fullName: '', email: '', roleId: null, departmentId: null, gender: 'MALE', phone: '', dateOfBirth: '', address: '' };
     editingId: number | null = null;
     userName = 'Quản trị viên';
 

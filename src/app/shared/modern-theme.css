@@ -829,8 +829,34 @@ body {
 .grades-table-container {
   margin: var(--space-6) 0;
   border-radius: var(--rounded-lg);
-  overflow: hidden;
+  overflow: auto;
   box-shadow: var(--shadow);
+  max-height: 600px;
+}
+
+/* Custom Scrollbar for Grades Table */
+.grades-table-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.grades-table-container::-webkit-scrollbar-track {
+  background: var(--gray-100);
+  border-radius: var(--rounded);
+}
+
+.grades-table-container::-webkit-scrollbar-thumb {
+  background: var(--gray-400);
+  border-radius: var(--rounded);
+  transition: background 0.3s ease;
+}
+
+.grades-table-container::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-500);
+}
+
+.grades-table-container::-webkit-scrollbar-corner {
+  background: var(--gray-100);
 }
 
 .grades-table {
@@ -1998,11 +2024,131 @@ select {
   }
 }
 
-/* Table Responsive */
+/* Table Responsive with Custom Scrollbars */
 .table-responsive {
-  overflow-x: auto;
+  overflow: auto;
   border-radius: var(--rounded);
   border: 1px solid var(--gray-200);
+  max-height: 600px; /* Set max height for vertical scrolling */
+}
+
+/* Custom Scrollbar Styles for Tables */
+.table-responsive::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: var(--gray-100);
+  border-radius: var(--rounded);
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: var(--gray-400);
+  border-radius: var(--rounded);
+  transition: background 0.3s ease;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-500);
+}
+
+.table-responsive::-webkit-scrollbar-corner {
+  background: var(--gray-100);
+}
+
+/* General Table Container with Scrollbars */
+.table-container,
+.scholarship-table-container,
+.payments-table-container,
+.students-table-container,
+.courses-table-container,
+.classes-table-container,
+.lecturers-table-container,
+.semesters-table-container,
+.departments-table-container,
+.users-table-container,
+.teachings-table-container {
+  overflow: auto;
+  border-radius: var(--rounded-lg);
+  box-shadow: var(--shadow);
+  max-height: 600px;
+  border: 1px solid var(--gray-200);
+}
+
+/* Custom Scrollbar for All Table Containers */
+.table-container::-webkit-scrollbar,
+.scholarship-table-container::-webkit-scrollbar,
+.payments-table-container::-webkit-scrollbar,
+.students-table-container::-webkit-scrollbar,
+.courses-table-container::-webkit-scrollbar,
+.classes-table-container::-webkit-scrollbar,
+.lecturers-table-container::-webkit-scrollbar,
+.semesters-table-container::-webkit-scrollbar,
+.departments-table-container::-webkit-scrollbar,
+.users-table-container::-webkit-scrollbar,
+.teachings-table-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track,
+.scholarship-table-container::-webkit-scrollbar-track,
+.payments-table-container::-webkit-scrollbar-track,
+.students-table-container::-webkit-scrollbar-track,
+.courses-table-container::-webkit-scrollbar-track,
+.classes-table-container::-webkit-scrollbar-track,
+.lecturers-table-container::-webkit-scrollbar-track,
+.semesters-table-container::-webkit-scrollbar-track,
+.departments-table-container::-webkit-scrollbar-track,
+.users-table-container::-webkit-scrollbar-track,
+.teachings-table-container::-webkit-scrollbar-track {
+  background: var(--gray-100);
+  border-radius: var(--rounded);
+}
+
+.table-container::-webkit-scrollbar-thumb,
+.scholarship-table-container::-webkit-scrollbar-thumb,
+.payments-table-container::-webkit-scrollbar-thumb,
+.students-table-container::-webkit-scrollbar-thumb,
+.courses-table-container::-webkit-scrollbar-thumb,
+.classes-table-container::-webkit-scrollbar-thumb,
+.lecturers-table-container::-webkit-scrollbar-thumb,
+.semesters-table-container::-webkit-scrollbar-thumb,
+.departments-table-container::-webkit-scrollbar-thumb,
+.users-table-container::-webkit-scrollbar-thumb,
+.teachings-table-container::-webkit-scrollbar-thumb {
+  background: var(--gray-400);
+  border-radius: var(--rounded);
+  transition: background 0.3s ease;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover,
+.scholarship-table-container::-webkit-scrollbar-thumb:hover,
+.payments-table-container::-webkit-scrollbar-thumb:hover,
+.students-table-container::-webkit-scrollbar-thumb:hover,
+.courses-table-container::-webkit-scrollbar-thumb:hover,
+.classes-table-container::-webkit-scrollbar-thumb:hover,
+.lecturers-table-container::-webkit-scrollbar-thumb:hover,
+.semesters-table-container::-webkit-scrollbar-thumb:hover,
+.departments-table-container::-webkit-scrollbar-thumb:hover,
+.users-table-container::-webkit-scrollbar-thumb:hover,
+.teachings-table-container::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-500);
+}
+
+.table-container::-webkit-scrollbar-corner,
+.scholarship-table-container::-webkit-scrollbar-corner,
+.payments-table-container::-webkit-scrollbar-corner,
+.students-table-container::-webkit-scrollbar-corner,
+.courses-table-container::-webkit-scrollbar-corner,
+.classes-table-container::-webkit-scrollbar-corner,
+.lecturers-table-container::-webkit-scrollbar-corner,
+.semesters-table-container::-webkit-scrollbar-corner,
+.departments-table-container::-webkit-scrollbar-corner,
+.users-table-container::-webkit-scrollbar-corner,
+.teachings-table-container::-webkit-scrollbar-corner {
+  background: var(--gray-100);
 }
 
 .data-table {
@@ -2041,13 +2187,13 @@ select {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--text-sm);
-  table-layout: fixed;
-  /* Ensures consistent column widths */
+  table-layout: auto;
+  /* Auto layout for even column distribution */
 }
 
 .data-table th,
 .data-table td {
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-4) var(--space-8);
   vertical-align: middle;
   border-collapse: collapse;
 }
@@ -2068,251 +2214,80 @@ select {
   white-space: nowrap;
 }
 
-/* Column width specifications and alignment - Apply to both th and td */
+/* General column alignment - Apply to all data tables */
 .data-table th:nth-child(1),
 .data-table td:nth-child(1) {
-  width: 50px;
   text-align: center;
+  width: 60px; /* Keep STT column narrow */
 }
 
-/* # */
-.data-table th:nth-child(2),
-.data-table td:nth-child(2) {
-  width: 120px;
+/* All other columns will auto-distribute width */
+.data-table th:not(:nth-child(1)),
+.data-table td:not(:nth-child(1)) {
   text-align: left;
 }
 
-/* Username */
-.data-table th:nth-child(3),
-.data-table td:nth-child(3) {
-  width: 150px;
-  text-align: left;
+/* Center align for specific data types */
+.data-table th:nth-child(n+5):nth-child(-n+7),
+.data-table td:nth-child(n+5):nth-child(-n+7) {
+  text-align: center; /* Date, Gender columns */
 }
 
-/* Full Name */
-.data-table th:nth-child(4),
-.data-table td:nth-child(4) {
-  width: 180px;
-  text-align: left;
-}
-
-/* Email */
-.data-table th:nth-child(5),
-.data-table td:nth-child(5) {
-  width: 100px;
+/* Actions column */
+.data-table th:last-child,
+.data-table td:last-child {
   text-align: center;
-}
-
-/* Date of Birth */
-.data-table th:nth-child(6),
-.data-table td:nth-child(6) {
-  width: 80px;
-  text-align: center;
-}
-
-/* Gender */
-.data-table th:nth-child(7),
-.data-table td:nth-child(7) {
-  width: 150px;
-  text-align: left;
-}
-
-/* Address */
-.data-table th:nth-child(8),
-.data-table td:nth-child(8) {
-  width: 120px;
-  text-align: center;
-}
-
-/* Role */
-.data-table th:nth-child(9),
-.data-table td:nth-child(9) {
-  width: 120px;
-  text-align: center;
-}
-
-/* Actions */
-
-/* Allow actions column to wrap */
-.data-table td:nth-child(9) {
   white-space: normal;
 }
 
 /* ===== LECTURERS TABLE SPECIFIC ===== */
-/* For lecturers table with 4 columns: #, User, Lecturer Code, Actions */
-.lecturers-table th:nth-child(1),
-.lecturers-table td:nth-child(1) {
-  width: 60px;
-  text-align: center;
+/* Enhanced padding for lecturers table */
+.lecturers-table th,
+.lecturers-table td {
+  padding: var(--space-5) var(--space-10);
 }
-
-/* # */
-.lecturers-table th:nth-child(2),
-.lecturers-table td:nth-child(2) {
-  width: 300px;
-  text-align: left;
-}
-
-/* User */
-.lecturers-table th:nth-child(3),
-.lecturers-table td:nth-child(3) {
-  width: 200px;
-  text-align: center;
-}
-
-/* Lecturer Code */
-.lecturers-table th:nth-child(4),
-.lecturers-table td:nth-child(4) {
-  width: 150px;
-  text-align: center;
-}
-
-/* Actions */
 
 /* ===== COURSES TABLE SPECIFIC ===== */
-/* For courses table with 8 columns: #, Course Code, Name, Semester, Credits, Slot, Fee, Actions */
-.courses-table th:nth-child(1),
-.courses-table td:nth-child(1) {
-  width: 50px;
-  text-align: center;
+/* Enhanced padding for courses table */
+.courses-table th,
+.courses-table td {
+  padding: var(--space-5) var(--space-10);
 }
-
-/* # */
-.courses-table th:nth-child(2),
-.courses-table td:nth-child(2) {
-  width: 100px;
-  text-align: center;
-}
-
-/* Course Code */
-.courses-table th:nth-child(3),
-.courses-table td:nth-child(3) {
-  width: 200px;
-  text-align: left;
-}
-
-/* Name */
-.courses-table th:nth-child(4),
-.courses-table td:nth-child(4) {
-  width: 80px;
-  text-align: center;
-}
-
-/* Semester */
-.courses-table th:nth-child(5),
-.courses-table td:nth-child(5) {
-  width: 70px;
-  text-align: center;
-}
-
-/* Credits */
-.courses-table th:nth-child(6),
-.courses-table td:nth-child(6) {
-  width: 70px;
-  text-align: center;
-}
-
-/* Slot */
-.courses-table th:nth-child(7),
-.courses-table td:nth-child(7) {
-  width: 120px;
-  text-align: right;
-}
-
-/* Fee */
-.courses-table th:nth-child(8),
-.courses-table td:nth-child(8) {
-  width: 120px;
-  text-align: center;
-}
-
-/* Actions */
 
 /* ===== CLASSES TABLE SPECIFIC ===== */
-/* For classes table with 4 columns: #, Name, Year, Actions */
-.classes-table th:nth-child(1),
-.classes-table td:nth-child(1) {
-  width: 60px;
-  text-align: center;
+/* Enhanced padding for classes table */
+.classes-table th,
+.classes-table td {
+  padding: var(--space-5) var(--space-10);
 }
-
-/* # */
-.classes-table th:nth-child(2),
-.classes-table td:nth-child(2) {
-  width: 300px;
-  text-align: left;
-}
-
-/* Name */
-.classes-table th:nth-child(3),
-.classes-table td:nth-child(3) {
-  width: 200px;
-  text-align: center;
-}
-
-/* Year */
-.classes-table th:nth-child(4),
-.classes-table td:nth-child(4) {
-  width: 150px;
-  text-align: center;
-}
-
-/* Actions */
 
 /* ===== SEMESTERS TABLE SPECIFIC ===== */
-/* For semesters table with 3 columns: #, Semester, Actions */
-.semesters-table th:nth-child(1),
-.semesters-table td:nth-child(1) {
-  width: 80px;
-  text-align: center;
+/* Enhanced padding for semesters table */
+.semesters-table th,
+.semesters-table td {
+  padding: var(--space-5) var(--space-10);
 }
 
-/* # */
-.semesters-table th:nth-child(2),
-.semesters-table td:nth-child(2) {
-  width: 400px;
-  text-align: center;
+/* ===== USERS TABLE SPECIFIC ===== */
+/* Enhanced padding for users table */
+.data-table.users-table th,
+.data-table.users-table td {
+  padding: var(--space-5) var(--space-10);
 }
 
-/* Semester */
-.semesters-table th:nth-child(3),
-.semesters-table td:nth-child(3) {
-  width: 200px;
-  text-align: center;
+/* ===== TEACHINGS TABLE SPECIFIC ===== */
+/* Enhanced padding for teachings table */
+.teachings-table th,
+.teachings-table td {
+  padding: var(--space-5) var(--space-10);
 }
-
-/* Actions */
 
 /* ===== DEPARTMENTS TABLE SPECIFIC ===== */
-/* For departments table with 4 columns: #, Code, Name, Actions */
-.departments-table th:nth-child(1),
-.departments-table td:nth-child(1) {
-  width: 60px;
-  text-align: center;
+/* Enhanced padding for departments table */
+.departments-table th,
+.departments-table td {
+  padding: var(--space-5) var(--space-10);
 }
-
-/* # */
-.departments-table th:nth-child(2),
-.departments-table td:nth-child(2) {
-  width: 150px;
-  text-align: center;
-}
-
-/* Code */
-.departments-table th:nth-child(3),
-.departments-table td:nth-child(3) {
-  width: 350px;
-  text-align: left;
-}
-
-/* Name */
-.departments-table th:nth-child(4),
-.departments-table td:nth-child(4) {
-  width: 150px;
-  text-align: center;
-}
-
-/* Actions */
 
 .data-table tbody tr:hover {
   background: var(--gray-50);

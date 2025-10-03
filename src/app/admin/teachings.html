@@ -45,15 +45,6 @@
                             </select>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label">🏫 Lớp học</label>
-                            <select class="form-input" [(ngModel)]="form.classId" name="classId" required>
-                                <option value="">-- Chọn lớp học --</option>
-                                <option *ngFor="let cls of classes" [value]="cls.id">
-                                    {{ cls.name }} ({{ cls.year }})
-                                </option>
-                            </select>
-                        </div>
 
                         <div class="form-group">
                             <label class="form-label">⏰ Tiết học</label>
@@ -100,14 +91,13 @@
                 <h4>📋 Danh sách phân công giảng dạy</h4>
             </div>
             <div class="card-body">
-                <div class="data-container">
-                    <table class="data-table">
+                <div class="table-responsive">
+                    <table class="data-table teachings-table">
                         <thead>
                             <tr>
                                 <th>#</th>
                                 <th>👨‍🏫 Giảng viên</th>
                                 <th>📚 Môn học</th>
-                                <th>🏫 Lớp học</th>
                                 <th>⏰ Tiết học</th>
                                 <th>📆 Ngày trong tuần</th>
                                 <th>🏫 Phòng học</th>
@@ -119,7 +109,6 @@
                         <td><strong>{{ i + 1 }}</strong></td>
                         <td>{{ getLecturerName(t.lecturerId) }}</td>
                         <td>{{ getCourseName(t.courseId) }}</td>
-                        <td>{{ getClassName(t.classId ?? null) }}</td>
                         <td>{{ t.period || 'N/A' }}</td>
                         <td>{{ t.dayOfWeek || 'N/A' }}</td>
                         <td>{{ t.classRoom || 'N/A' }}</td>
@@ -137,7 +126,7 @@
                             </td>
                         </tr>
                         <tr *ngIf="teachings.length === 0">
-                            <td colspan="8" class="no-data">
+                            <td colspan="7" class="no-data">
                                 📭 Không có phân công giảng dạy nào
                             </td>
                         </tr>
