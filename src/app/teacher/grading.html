@@ -92,7 +92,6 @@
                 <th>🧮 TP1 (0-10)</th>
                 <th>🧮 TP2 (0-10)</th>
                 <th>📝 Thi CK (0-10)</th>
-                <th>🎯 Điểm tổng</th>
                 <th>⚙️ Thao tác</th>
               </tr>
             </thead>
@@ -113,11 +112,6 @@
                 <td>
                   <input type="number" class="score-input" min="0" max="10" step="0.1"
                     [(ngModel)]="student.finalExamScore" placeholder="0.0" (blur)="calculateGrade(student)" />
-                </td>
-                <td>
-                  <span class="grade-display" [class.has-grade]="student.grade">
-                    {{ student.grade || 'Chưa chấm' }}
-                  </span>
                 </td>
                 <td>
                   <button class="btn btn-sm btn-success" (click)="saveScores(student)" [disabled]="saving"
