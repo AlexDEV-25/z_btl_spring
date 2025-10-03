@@ -113,7 +113,7 @@ export class AdminPaymentsComponent implements OnInit {
         { icon: '💰', label: 'Học phí', route: '/admin/payments' }
     ];
 
-    private baseUrl = 'http://localhost:8080/api/admin/payments';
+    private baseUrl = 'http://localhost:8080/api/payments';
 
     constructor(
         private http: HttpClient,
