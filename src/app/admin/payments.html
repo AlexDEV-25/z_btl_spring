@@ -2,7 +2,7 @@
   <div class="main-card">
     <div class="page-header">
       <h3>💰 Quản lý học phí</h3>
-      
+
       <div class="header-controls">
         <!-- Filters -->
         <div class="filters-container">
@@ -28,13 +28,16 @@
 
           <div class="filter-group">
             <label for="searchTerm">Tìm kiếm:</label>
-            <input 
-              id="searchTerm" 
-              type="text" 
-              [(ngModel)]="searchTerm" 
-              (input)="onSearchChange()"
-              placeholder="ID thanh toán, mã sinh viên..."
-              class="search-input">
+            <input id="searchTerm" type="text" [(ngModel)]="searchTerm" (input)="onSearchChange()"
+              placeholder="ID thanh toán, mã sinh viên..." class="search-input">
+          </div>
+
+          <!-- Export Button ngay sau thanh tìm kiếm -->
+          <div class="export-container">
+            <button class="btn btn-success" (click)="exportPayments()" [disabled]="loading">
+              <span *ngIf="!loading">📥 Export theo trạng thái</span>
+              <span *ngIf="loading">⏳ Đang tải...</span>
+            </button>
           </div>
         </div>
       </div>
@@ -97,8 +100,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let payment of filteredPayments" 
-                [ngClass]="'payment-row-' + payment.status.toLowerCase()">
+            <tr *ngFor="let payment of filteredPayments" [ngClass]="'payment-row-' + payment.status.toLowerCase()">
               <td class="payment-id">#{{ payment.id }}</td>
               <td class="student-id">{{ payment.studentCode || 'SV' + payment.studentId }}</td>
               <td class="semester-id">{{ payment.semesterName || 'HK' + payment.semesterId }}</td>
@@ -109,10 +111,7 @@
                 </span>
               </td>
               <td class="payment-actions">
-                <button 
-                  class="btn btn-sm btn-primary"
-                  (click)="openUpdateModal(payment)"
-                  title="Cập nhật trạng thái">
+                <button class="btn btn-sm btn-primary" (click)="openUpdateModal(payment)" title="Cập nhật trạng thái">
                   🔄 Cập nhật
                 </button>
               </td>
@@ -155,7 +154,8 @@
             </div>
             <div class="info-row">
               <span class="label">Sinh viên:</span>
-              <span class="value">{{ selectedPaymentDetail.studentName }} (SV{{ selectedPaymentDetail.studentId }})</span>
+              <span class="value">{{ selectedPaymentDetail.studentName }} (SV{{ selectedPaymentDetail.studentId
+                }})</span>
             </div>
             <div class="info-row">
               <span class="label">Lớp:</span>
@@ -199,7 +199,8 @@
                 <tfoot>
                   <tr class="total-row">
                     <td colspan="3"><strong>Tổng cộng:</strong></td>
-                    <td class="total-amount"><strong>{{ formatCurrency(selectedPaymentDetail.totalAmount) }}</strong></td>
+                    <td class="total-amount"><strong>{{ formatCurrency(selectedPaymentDetail.totalAmount) }}</strong>
+                    </td>
                   </tr>
                 </tfoot>
               </table>
@@ -218,11 +219,7 @@
 
         <div class="form-group">
           <label for="updateReason">Lý do (tùy chọn):</label>
-          <textarea 
-            id="updateReason" 
-            [(ngModel)]="updateReason" 
-            class="form-control"
-            rows="3"
+          <textarea id="updateReason" [(ngModel)]="updateReason" class="form-control" rows="3"
             placeholder="Nhập lý do thay đổi trạng thái..."></textarea>
         </div>
       </div>
@@ -231,10 +228,7 @@
         <button class="btn btn-secondary" (click)="closeUpdateModal()" [disabled]="updating">
           Hủy
         </button>
-        <button 
-          class="btn btn-primary" 
-          (click)="updatePaymentStatusFromUI()" 
-          [disabled]="updating || !newStatus">
+        <button class="btn btn-primary" (click)="updatePaymentStatusFromUI()" [disabled]="updating || !newStatus">
           <span *ngIf="updating">⏳ Đang cập nhật...</span>
           <span *ngIf="!updating">💾 Cập nhật</span>
         </button>
@@ -242,565 +236,3 @@
     </div>
   </div>
 </app-layout>
-
-<style>
-.header-controls {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.filters-container {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  align-items: end;
-}
-
-.filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  min-width: 150px;
-}
-
-.filter-group label {
-  font-weight: 600;
-  color: #374151;
-  font-size: 0.9rem;
-}
-
-.filter-group select,
-.search-input {
-  padding: 0.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background: white;
-  font-size: 0.9rem;
-}
-
-.search-input {
-  min-width: 200px;
-}
-
-.statistics-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.stat-card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  border-left: 4px solid #6b7280;
-}
-
-.stat-card.paid {
-  border-left-color: #10b981;
-}
-
-.stat-card.pending {
-  border-left-color: #f59e0b;
-}
-
-.stat-card.failed {
-  border-left-color: #ef4444;
-}
-
-.stat-icon {
-  font-size: 2rem;
-}
-
-.stat-content {
-  flex: 1;
-}
-
-.stat-number {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1f2937;
-}
-
-.stat-label {
-  color: #6b7280;
-  font-size: 0.9rem;
-}
-
-.stat-amount {
-  color: #059669;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.table-container {
-  background: white;
-  border-radius: 12px;
-  overflow: auto;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  max-height: 600px;
-}
-
-.table-container::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.table-container::-webkit-scrollbar-track {
-  background: #f3f4f6;
-  border-radius: 4px;
-}
-
-.table-container::-webkit-scrollbar-thumb {
-  background: #9ca3af;
-  border-radius: 4px;
-  transition: background 0.3s ease;
-}
-
-.table-container::-webkit-scrollbar-thumb:hover {
-  background: #6b7280;
-}
-
-.table-container::-webkit-scrollbar-corner {
-  background: #f3f4f6;
-}
-
-.payments-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.payments-table th,
-.payments-table td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.payments-table th {
-  background: #f9fafb;
-  font-weight: 600;
-  color: #374151;
-}
-
-.payments-table tr:hover {
-  background: #f9fafb;
-}
-
-.payment-row-paid {
-  background: rgba(16, 185, 129, 0.05);
-}
-
-.payment-row-pending {
-  background: rgba(245, 158, 11, 0.05);
-}
-
-.payment-row-failed {
-  background: rgba(239, 68, 68, 0.05);
-}
-
-.payment-id {
-  font-weight: 600;
-  color: #3b82f6;
-}
-
-.student-id {
-  font-weight: 600;
-  color: #059669;
-}
-
-.semester-id {
-  color: #6b7280;
-}
-
-.payment-date {
-  color: #374151;
-  font-size: 0.9rem;
-}
-
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 0.8rem;
-}
-
-.status-paid {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.status-pending {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.status-failed {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.btn {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-  font-size: 0.9rem;
-}
-
-.btn-sm {
-  padding: 0.25rem 0.75rem;
-  font-size: 0.8rem;
-}
-
-.btn-primary {
-  background: #3b82f6;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: #2563eb;
-  transform: translateY(-1px);
-}
-
-.btn-secondary {
-  background: #6b7280;
-  color: white;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background: #4b5563;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-  color: #6b7280;
-}
-
-.empty-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-}
-
-.empty-state h4 {
-  margin: 0 0 0.5rem 0;
-  color: #374151;
-}
-
-.success-message {
-  background: #d1fae5;
-  color: #065f46;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  border-left: 4px solid #10b981;
-}
-
-.error-message {
-  background: #fee2e2;
-  color: #991b1b;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  border-left: 4px solid #ef4444;
-}
-
-.loading-message {
-  text-align: center;
-  padding: 2rem;
-  color: #6b7280;
-  font-size: 1.1rem;
-}
-
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 800px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.modal-header h4 {
-  margin: 0;
-  color: #1f2937;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #6b7280;
-  padding: 0.25rem;
-}
-
-.close-btn:hover {
-  color: #374151;
-}
-
-.modal-body {
-  padding: 1.5rem;
-}
-
-.payment-info {
-  background: #f9fafb;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.info-row:last-child {
-  margin-bottom: 0;
-}
-
-.info-row .label {
-  font-weight: 600;
-  color: #374151;
-}
-
-.info-row .value {
-  color: #1f2937;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 0.5rem;
-}
-
-.form-control {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 0.9rem;
-}
-
-.form-control:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  padding: 1.5rem;
-  border-top: 1px solid #e5e7eb;
-}
-
-/* Loading Detail */
-.loading-detail {
-  text-align: center;
-  padding: 2rem;
-  color: #6b7280;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f4f6;
-  border-top: 4px solid #3b82f6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Payment Detail */
-.payment-detail {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.payment-basic-info {
-  background: #f9fafb;
-  border-radius: 8px;
-  padding: 1rem;
-}
-
-.courses-section {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 1rem;
-}
-
-.courses-section h5 {
-  margin: 0 0 1rem 0;
-  color: #1f2937;
-  font-size: 1.1rem;
-}
-
-.courses-table-container {
-  overflow: auto;
-  max-height: 400px;
-}
-
-.courses-table-container::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-.courses-table-container::-webkit-scrollbar-track {
-  background: #f3f4f6;
-  border-radius: 3px;
-}
-
-.courses-table-container::-webkit-scrollbar-thumb {
-  background: #9ca3af;
-  border-radius: 3px;
-  transition: background 0.3s ease;
-}
-
-.courses-table-container::-webkit-scrollbar-thumb:hover {
-  background: #6b7280;
-}
-
-.courses-table-container::-webkit-scrollbar-corner {
-  background: #f3f4f6;
-}
-
-.courses-detail-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
-
-.courses-detail-table th,
-.courses-detail-table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.courses-detail-table th {
-  background: #f9fafb;
-  font-weight: 600;
-  color: #374151;
-}
-
-.courses-detail-table tbody tr:hover {
-  background: #f9fafb;
-}
-
-.course-code {
-  font-weight: 600;
-  color: #3b82f6;
-}
-
-.course-name {
-  color: #1f2937;
-}
-
-.course-credits {
-  text-align: center;
-  font-weight: 600;
-}
-
-.course-fee {
-  font-weight: 600;
-  color: #059669;
-  text-align: right;
-}
-
-.total-row {
-  background: #f0f9ff;
-  border-top: 2px solid #3b82f6;
-}
-
-.total-row td {
-  font-size: 1rem;
-  padding: 1rem 0.75rem;
-}
-
-.total-amount {
-  color: #dc2626;
-  font-size: 1.1rem;
-  text-align: right;
-}
-
-@media (max-width: 768px) {
-  .filters-container {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .filter-group {
-    min-width: auto;
-  }
-
-  .statistics-container {
-    grid-template-columns: 1fr;
-  }
-
-  .payments-table {
-    font-size: 0.8rem;
-  }
-
-  .payments-table th,
-  .payments-table td {
-    padding: 0.5rem;
-  }
-
-  .modal-content {
-    width: 95%;
-    margin: 1rem;
-  }
-}
-</style>

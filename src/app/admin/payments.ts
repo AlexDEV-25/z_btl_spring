@@ -440,12 +440,44 @@ export class AdminPaymentsComponent implements OnInit {
         };
     }
 
-    logout() {
-        if (confirm('🚪 Bạn có chắc chắn muốn đăng xuất?')) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            sessionStorage.clear();
-            this.router.navigate(['/login']);
-        }
+    /**
+     * Export payments to CSV
+     */
+    exportPayments() {
+        this.loading = true;
+        this.http.get(`${this.baseUrl}/export`, {
+            params: this.statusFilter ? { status: this.statusFilter } : {},
+            responseType: 'blob'
+        }).subscribe({
+            next: (blob: Blob) => {
+                // Create download link
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+
+                // Update filename to reflect payment status instead of semester
+                const statusText = this.statusFilter ? this.getStatusText(this.statusFilter).toLowerCase().replace(/\s+/g, '_') : 'tat_ca_trang_thai';
+                a.download = `danh_sach_thanh_toan_${statusText}.csv`;
+
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                this.loading = false;
+                this.successMessage = '✅ Xuất file CSV thành công!';
+                setTimeout(() => {
+                    this.successMessage = '';
+                }, 3000);
+            },
+            error: (error: any) => {
+                console.error('Error exporting payments:', error);
+                this.error = '❌ Lỗi khi xuất file CSV';
+                this.loading = false;
+                setTimeout(() => {
+                    this.error = '';
+                }, 5000);
+            }
+        });
     }
 }

@@ -94,8 +94,8 @@ export interface StudentProfile {
     email: string;
     phone: string;
     className: string;
-    major: string;
-    academicYear: string;
+    departmentName: string;
+    year: string;
 }
 
 export interface ChangePasswordRequest {
